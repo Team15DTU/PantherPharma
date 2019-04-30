@@ -1,9 +1,9 @@
-package dto;
+package dto.rawMaterialBatch;
 
 /**
  * @author Rasmus Sander Larsen
  */
-public class UserDTO {
+public class RawMaterialBatchDTO {
 
     /*
     -------------------------- Fields --------------------------

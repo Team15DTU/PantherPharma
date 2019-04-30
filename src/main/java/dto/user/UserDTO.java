@@ -1,9 +1,9 @@
-package dal;
+package dto.user;
 
 /**
  * @author Rasmus Sander Larsen
  */
-public class UserDAO {
+public class UserDTO {
 
     /*
     -------------------------- Fields --------------------------

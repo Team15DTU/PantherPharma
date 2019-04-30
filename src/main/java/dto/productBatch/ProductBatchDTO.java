@@ -1,9 +1,9 @@
-package dto;
+package dto.productBatch;
 
 /**
  * @author Rasmus Sander Larsen
  */
-public class RecipeDTO {
+public class ProductBatchDTO {
 
     /*
     -------------------------- Fields --------------------------
