@@ -18,7 +18,7 @@ public interface IProductBatchDAO {
      *
      * @param productBatchDTO
      * @return
-     * @throws DALException
+     * @throws DALException This methods throws a DALException.
      */
     boolean createProductBatch (IProductBatchDTO productBatchDTO) throws DALException;
 

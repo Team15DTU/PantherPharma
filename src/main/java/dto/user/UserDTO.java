@@ -8,8 +8,13 @@ public class UserDTO {
     /*
     -------------------------- Fields --------------------------
      */
-    
-    
+
+    private int userID;
+    private String name;
+    private UserRoleEnum userRole;
+    private boolean isAdmin;
+    private String userName;
+    private String password;
     
     /*
     ----------------------- Constructor -------------------------

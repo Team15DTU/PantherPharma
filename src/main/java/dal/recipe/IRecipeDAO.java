@@ -37,7 +37,7 @@ public interface IRecipeDAO {
      * This method is used for when a recipe is "deleted". Which means setting it to "inactive".
      * @param updatedRecipe
      * @return
-     * @throws DALException
+     * @throws DALException This methods throws a DALException.
      */
     int updateRecipe (IRecipeDTO updatedRecipe) throws DALException;
 

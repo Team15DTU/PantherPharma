@@ -14,6 +14,12 @@ public interface IRawMaterialDAO {
     ---------------------- Public Methods -----------------------
      */
 
+    /**
+     *
+     * @param rawMaterialDTO
+     * @return
+     * @throws DALException This methods throws a DALException.
+     */
     boolean createRawMaterial (IRawMaterialDTO rawMaterialDTO) throws DALException;
 
     IRawMaterialDTO getRawMaterial (int rawMaterialBatch) throws DALException;
