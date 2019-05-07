@@ -9,7 +9,9 @@ public class RawMaterialBatchDTO {
     -------------------------- Fields --------------------------
      */
     
-    
+    private int rawMaterialBatchID;
+    private boolean isResidue;
+    private double amount;
     
     /*
     ----------------------- Constructor -------------------------

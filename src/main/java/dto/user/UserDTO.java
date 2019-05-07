@@ -3,7 +3,7 @@ package dto.user;
 /**
  * @author Rasmus Sander Larsen
  */
-public class UserDTO {
+public class UserDTO implements IUserDTO {
 
     /*
     -------------------------- Fields --------------------------
