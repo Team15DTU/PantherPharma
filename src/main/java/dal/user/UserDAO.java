@@ -1,9 +1,13 @@
 package dal.user;
 
 import dal.DALException;
+import db.IConnPool;
 import dto.user.IUserDTO;
 import dto.user.UserRoleEnum;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -11,17 +15,28 @@ import java.util.List;
  */
 public class UserDAO implements IUserDAO {
 
+    // Names on columns in the DB table: Jobs
+    public enum columns {
+        user_id, name, isAdmin, userName, password
+    }
+
     /*
     -------------------------- Fields --------------------------
      */
     
-    
+    private IConnPool iConnPool;
+    private final String TABLE_NAME = "user";
+
     
     /*
     ----------------------- Constructor -------------------------
      */
     
-    
+    public UserDAO (IConnPool iConnPool) {
+
+        this.iConnPool = iConnPool;
+
+    }
     
     /*
     ------------------------ Properties -------------------------
@@ -38,13 +53,34 @@ public class UserDAO implements IUserDAO {
 
     /**
      * This method creates a new User in the DB.
-     *
      * @param userDTO This is the UserObject containing all the data that is inputted into the DB.
      * @return "True" if the User successfully were added the the DB and "False" if somethings fails.
      * @throws DALException This methods throws a DALException.
      */
     @Override
     public boolean createUser(IUserDTO userDTO) throws DALException {
+
+        Connection c = iConnPool.getConn();
+
+        String query = String.format("INSERT INTO %s (%s, %s, %s, %s, %s) VALUES (?,?,?,?,?)",
+                TABLE_NAME, columns.user_id, columns.name, columns.isAdmin, columns.userName, columns.password);
+
+        try {
+
+            PreparedStatement pStatement = c.prepareStatement(query);
+            pStatement.setInt(1,userDTO.getUserID());
+            pStatement.setString(2, userDTO.getName());
+            pStatement.setBoolean(3, userDTO.isAdmin());
+            pStatement.setString(4, userDTO.getUserName());
+            pStatement.setString(5, userDTO.getPassword());
+
+            pStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new DALException(e.getMessage());
+        }finally {
+            iConnPool.releaseConnection(c);
+        }
         return false;
     }
 
