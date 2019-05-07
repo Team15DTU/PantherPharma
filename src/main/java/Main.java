@@ -1,4 +1,5 @@
 import dal.DALException;
+import dal.multitool.MultiTool;
 import dal.user.IUserDAO;
 import dal.user.UserDAO;
 import db.IConnPool;
@@ -23,7 +24,10 @@ public class Main {
         IUserDTO userDTO = new UserDTO("Rasmus Larsen", false, "jegerstadigkongen", "igætterdetaldrig");
 
         // Create user in DB
-        userDAO.createUser(userDTO);
+        //userDAO.createUser(userDTO);
+
+        MultiTool multiTool = new MultiTool(iConnPool);
+        multiTool.printResultOfQuery("DESC recipe");
     }
 
 }
