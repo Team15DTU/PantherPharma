@@ -8,9 +8,12 @@ public class RawMaterialDTO {
     /*
     -------------------------- Fields --------------------------
      */
-    
-    
-    
+
+    private int rawMaterialDTO_ID;
+    private double stdDeviation;
+    private double amount;
+    private boolean isActive;
+
     /*
     ----------------------- Constructor -------------------------
      */
