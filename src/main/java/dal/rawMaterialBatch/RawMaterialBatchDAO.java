@@ -10,11 +10,15 @@ import java.util.List;
  */
 public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
 
+    public enum columns {
+        rawMaterialBatch_id, isResidue, amount
+    }
+
     /*
     -------------------------- Fields --------------------------
      */
     
-    
+    private final String TABLE_NAME = "rawMaterialBatch";
     
     /*
     ----------------------- Constructor -------------------------

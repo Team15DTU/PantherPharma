@@ -11,11 +11,15 @@ import java.util.List;
  */
 public class RecipeDAO implements IRecipeDAO {
 
+    public enum columns {
+        recipe_id, name, storageTime, startDate
+    }
+
     /*
     -------------------------- Fields --------------------------
      */
-    
-    
+
+    private final String TABLE_NAME = "recipe";
     
     /*
     ----------------------- Constructor -------------------------

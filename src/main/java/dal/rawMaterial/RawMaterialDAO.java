@@ -14,7 +14,7 @@ public class RawMaterialDAO implements IRawMaterialDAO {
     -------------------------- Fields --------------------------
      */
     
-    
+    private final String TABLE_NAME = "rawMaterial";
     
     /*
     ----------------------- Constructor -------------------------

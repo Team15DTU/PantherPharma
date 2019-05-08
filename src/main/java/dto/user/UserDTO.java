@@ -9,7 +9,7 @@ public class UserDTO implements IUserDTO {
     -------------------------- Fields --------------------------
      */
 
-    private int userID;
+    private int userID = 0;
     private String name;
     private UserRoleEnum userRole;
     private boolean isAdmin;
@@ -19,6 +19,7 @@ public class UserDTO implements IUserDTO {
     /*
     ----------------------- Constructor -------------------------
      */
+    public UserDTO () {}
 
     public UserDTO ( String name, boolean isAdmin, String userName, String password) {
         this.name = name;
@@ -89,7 +90,21 @@ public class UserDTO implements IUserDTO {
     ---------------------- Public Methods -----------------------
      */
     
-    
+    public String toString () {
+        StringBuilder toStringBuilder = new StringBuilder();
+        if (userID != 0) {
+            toStringBuilder.append("UserID: " + userID + ", ");
+        }
+        toStringBuilder.append("Name: " + name + ", ");
+        toStringBuilder.append("UserName: " + userName + ", ");
+        toStringBuilder.append("Password: " + password + ", ");
+        toStringBuilder.append("Admin: " + isAdmin );
+        if (userRole != null) {
+            toStringBuilder.append(", UserRole: " + userRole);
+        }
+
+        return toStringBuilder.toString();
+    }
     
     /*
     ---------------------- Support Methods ----------------------

@@ -5,6 +5,6 @@ package dto.user;
  */
 public enum UserRoleEnum {
 
-    Farmaceut, Laborant, Produktionsleder
+    farmaceut, laborant, produktionsleder
 
 }

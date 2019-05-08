@@ -14,7 +14,7 @@ public class ProductBatchDAO implements IProductBatchDAO {
     -------------------------- Fields --------------------------
      */
     
-    
+    private final String TABLE_NAME = "productBatch";
     
     /*
     ----------------------- Constructor -------------------------

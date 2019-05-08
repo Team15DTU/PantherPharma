@@ -4,10 +4,7 @@ import dal.DALException;
 import db.IConnPool;
 
 import javax.swing.*;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 /**
  * @author Rasmus Sander Larsen
@@ -46,9 +43,20 @@ public class MultiTool {
 
         try {
             Statement statement = c.createStatement();
-            ResultSet resultSet = statement.executeQuery(query);
-            while (resultSet.next()) {
-                System.out.println(resultSet.getString(1));
+            ResultSet rs = statement.executeQuery(query);
+            ResultSetMetaData rsmd = rs.getMetaData();
+            int noOfColumns = rsmd.getColumnCount();
+            while (rs.next()) {
+                for (int i = 1; i <= noOfColumns; i++) {
+                    if (i > 1) {
+                        System.out.print(", ");
+                    }
+
+                    String columnValue = rs.getString(i);
+                    System.out.print(rsmd.getColumnName(i) + ": " + columnValue );
+
+                }
+                System.out.println();
             }
 
         } catch (SQLException e) {
