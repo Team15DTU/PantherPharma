@@ -10,6 +10,9 @@ import java.util.List;
  */
 public class ProductBatchDAO implements IProductBatchDAO {
 
+    public enum columns {
+        productBatch_id, status_id, recipe_id, amount
+    }
     /*
     -------------------------- Fields --------------------------
      */
