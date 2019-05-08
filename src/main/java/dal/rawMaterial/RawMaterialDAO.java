@@ -10,6 +10,11 @@ import java.util.List;
  */
 public class RawMaterialDAO implements IRawMaterialDAO {
 
+    // Names on columns in the DB table: Jobs
+    public enum columns {
+        user_id, name, isAdmin, userName, password
+    }
+
     /*
     -------------------------- Fields --------------------------
      */
