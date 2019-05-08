@@ -291,6 +291,7 @@ public class UserDAO implements IUserDAO {
                 variablesChanged++;
             }
 
+            /* TODO: Find a way to code the changes to roles.
             if (userDTO.getUserRole() != null && userDTOBeforeUpdate.getUserRole() != null){
                 if (!userDTO.getUserRole().equals(userDTOBeforeUpdate.getUserRole())) {
                     if (userDTOBeforeUpdate.getUserRole() != null) {
@@ -305,6 +306,7 @@ public class UserDAO implements IUserDAO {
                 variablesChanged++;
                 }
             }
+            */
 
             c.commit();
 
