@@ -28,7 +28,7 @@ public class UserDAOTestMain {
         IUserDTO userDTOUpdated = new UserDTO("Nicolaj Wassmann2", true, "megakongen2", "igætterdetaldrig");
         userDTO.setUserRole(UserRoleEnum.laborant);
         // Create user in DB
-        //userDAO.createUser(userDTO);
+        userDAO.createUser(userDTO);
         System.out.println("Getted User: ");
         System.out.println(userDAO.getUser(5));
 

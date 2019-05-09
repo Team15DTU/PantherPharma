@@ -220,7 +220,48 @@ public class RawMaterialDAO implements IRawMaterialDAO {
      */
     @Override
     public int updateRawMaterial(IRawMaterialDTO rawMaterialDTO) throws DALException {
-        return 0;
+
+        int variableChanges = 0;
+
+        Connection c = iConnPool.getConn();
+
+        IRawMaterialDTO rawMaterialDTOBeforeUpdate = getRawMaterial(rawMaterialDTO.getRawMaterialDTO_ID());
+
+        String nameUpdateQuery = String.format("UPDATE %s SET %s = ? WHERE %s = %s",
+                TABLE_NAME, columns.name, columns.rawMaterial_id, rawMaterialDTO.getRawMaterialDTO_ID());
+
+        String stdDeviationUpdateQuery = String.format("UPDATE %s SET %s = ? WHERE %s = %s",
+                TABLE_NAME, columns.stdDeviation, columns.rawMaterial_id, rawMaterialDTO.getRawMaterialDTO_ID());
+
+        try {
+            c.setAutoCommit(false);
+
+            PreparedStatement namePS = c.prepareStatement(nameUpdateQuery);
+            PreparedStatement stdDeviationPS = c.prepareStatement(stdDeviationUpdateQuery);
+
+            if (!rawMaterialDTO.getName().equals(rawMaterialDTOBeforeUpdate.getName())){
+                namePS.setString(1, rawMaterialDTO.getName());
+
+                namePS.executeUpdate();
+                variableChanges++;
+            }
+
+            if (rawMaterialDTO.getStdDeviation() != rawMaterialDTOBeforeUpdate.getStdDeviation()) {
+                stdDeviationPS.setDouble(1, rawMaterialDTO.getStdDeviation());
+
+                stdDeviationPS.executeUpdate();
+                variableChanges++;
+            }
+
+            c.commit();
+
+        } catch (SQLException e) {
+            connectionHelper.catchSQLExceptionAndDoRollback(c, e, "RawMaterialDAO.updateRawMaterial");
+        } finally {
+            connectionHelper.finallyActionsForConnection(c, "RawMaterialDAO.updateRawMaterial");
+        }
+
+        return variableChanges;
     }
 
     /*
