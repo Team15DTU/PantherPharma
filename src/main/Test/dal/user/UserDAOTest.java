@@ -21,7 +21,7 @@ public class UserDAOTest {
 
     @Test
     public void createUser() throws DALException {
-        
+
     }
 
     @Test
