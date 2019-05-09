@@ -51,7 +51,7 @@ public interface IUserDAO {
      * This method updates an existing user in the DB.
      * The user is updated with the information from the inputted IUserDTO object.
      * @param userDTO contains the information that the existing user is updated with.
-     * @return an int matching the number of columns that is changed as a result of this method.
+     * @return an int matching the number of recipe that is changed as a result of this method.
      * @throws DALException This methods throws a DALException.
      */
     int updateUser (IUserDTO userDTO) throws DALException;

@@ -78,7 +78,7 @@ public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
      * This method updates an existing raw material batch with the information in the inputted Object.
      *
      * @param rawMaterialBatchDTO contains the information that the raw material batch is updated with.
-     * @return a number corresponding to the number of columns that is changed as a result of the update.
+     * @return a number corresponding to the number of recipe that is changed as a result of the update.
      * @throws DALException This methods throws a DALException.
      */
     @Override

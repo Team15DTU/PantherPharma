@@ -16,12 +16,12 @@ import java.util.List;
  */
 public class RawMaterialDAO implements IRawMaterialDAO {
 
-    // Names on columns in the DB table: rawMaterial
+    // Names on recipe in the DB table: rawMaterial
     public enum columns {
         rawMaterial_id, stdDeviation, name
     }
 
-    // Names on columns in the DB table: rawMaterial_recipe
+    // Names on recipe in the DB table: rawMaterial_recipe
     public enum rm_recipColumns {
         rawMaterial_id, recipe_id, active, amount
 
@@ -216,7 +216,7 @@ public class RawMaterialDAO implements IRawMaterialDAO {
      * This method updates an existing raw material with the information in the inputted IRawMaterialDTO object.
      *
      * @param rawMaterialDTO contains the information that the raw materials should be updated with.
-     * @return a number corresponding to the number of columns that is changed as a result of the update.
+     * @return a number corresponding to the number of recipe that is changed as a result of the update.
      * @throws DALException This methods throws a DALException.
      */
     @Override

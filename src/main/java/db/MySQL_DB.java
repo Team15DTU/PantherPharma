@@ -2,9 +2,8 @@ package db;
 
 import dal.DALException;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.TimeZone;
 
 /**
  * @author Rasmus Sander Larsen
@@ -23,7 +22,11 @@ public class MySQL_DB implements IConnPool {
     ----------------------- Constructor -------------------------
      */
 
-    public MySQL_DB () {}
+    public MySQL_DB () throws DALException {
+
+        TimeZone.setDefault(TimeZone.getTimeZone(setTimeZoneFromSQLServer()));
+
+    }
 
     /*
     ------------------------ Properties -------------------------
@@ -61,5 +64,19 @@ public class MySQL_DB implements IConnPool {
     ---------------------- Support Methods ----------------------
      */
 
+    private String setTimeZoneFromSQLServer ()  throws DALException{
+        Connection c =getConn();
+        try {
+            Statement statement = c.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT @@system_time_zone");
+            resultSet.next();
+            return resultSet.getString(1);
+
+        } catch (SQLException e) {
+            throw new DALException(e.getMessage());
+        } finally {
+            releaseConnection(c);
+        }
+    }
 
 }

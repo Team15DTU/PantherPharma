@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class UserDAO implements IUserDAO {
 
-    // Names on columns in the DB table: Jobs
+    // Names on recipe in the DB table: Jobs
     public enum columns {
         user_id, name, isAdmin, userName, password
     }
@@ -154,7 +154,8 @@ public class UserDAO implements IUserDAO {
 
         Connection c = iConnPool.getConn();
 
-        String userIDQuery = String.format("SELECT %s FROM %s",columns.user_id,TABLE_NAME);
+        String userIDQuery = String.format("SELECT %s FROM %s",
+                columns.user_id,TABLE_NAME);
 
         try {
             Statement statement = c.createStatement();
@@ -220,7 +221,7 @@ public class UserDAO implements IUserDAO {
      * The user is updated with the information from the inputted IUserDTO object.
      *
      * @param userDTO contains the information that the existing user is updated with.
-     * @return an int matching the number of columns that is changed as a result of this method.
+     * @return an int matching the number of recipe that is changed as a result of this method.
      * @throws DALException This methods throws a DALException.
      */
     @Override
