@@ -24,6 +24,7 @@ public class RawMaterialDAO implements IRawMaterialDAO {
     // Names on columns in the DB table: rawMaterial_recipe
     public enum rm_recipColumns {
         rawMaterial_id, recipe_id, active, amount
+
     }
 
     /*
