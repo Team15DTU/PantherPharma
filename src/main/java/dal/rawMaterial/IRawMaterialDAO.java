@@ -31,6 +31,14 @@ public interface IRawMaterialDAO {
     IRawMaterialDTO getRawMaterial (int rawMaterial_ID) throws DALException;
 
     /**
+     * This method gets a IRawMaterial object that contains the information matching the inputted
+     * @param rawMaterial_ID is the ID on the raw material the method should return.
+     * @return a IRawMaterial object containing the information matching the inputted ID.
+     * @throws DALException This methods throws a DALException.
+     */
+    IRawMaterialDTO getRawMaterialInRecipe (int rawMaterial_ID) throws DALException;
+
+    /**
      * This method returns a List object containing ALL raw materials in the DB.
      * @return a List<IRawMaterialDTO> of ALL raw material.
      * @throws DALException This methods throws a DALException.

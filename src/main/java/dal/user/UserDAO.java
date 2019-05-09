@@ -86,14 +86,15 @@ public class UserDAO implements IUserDAO {
             //roleStatment.executeUpdate();
 
             c.commit();
+            return true;
 
 
         } catch (SQLException e) {
             catchSQLExceptionAndDoRollback(c, e, "UserDAO.createUser");
+            return false;
         } finally {
             finallyActionsForConnection(c, "UserDAO.createUser");
         }
-        return false;
     }
 
     /**
@@ -112,7 +113,8 @@ public class UserDAO implements IUserDAO {
         Connection c = iConnPool.getConn();
 
         // Get query
-        String getQuery = "SELECT * FROM "+ TABLE_NAME +" WHERE "+ columns.user_id.toString() + " = ?";
+        String getQuery = String.format("SELECT * FROM %s WHERE %s = ?",
+                TABLE_NAME, columns.user_id);
 
         try {
             PreparedStatement pStatement = c.prepareStatement(getQuery);
