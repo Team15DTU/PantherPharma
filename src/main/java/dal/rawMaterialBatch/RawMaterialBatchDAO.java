@@ -1,8 +1,15 @@
 package dal.rawMaterialBatch;
 
+import dal.Columns;
+import dal.ConnectionHelper;
 import dal.DALException;
+import db.IConnPool;
 import dto.rawMaterialBatch.IRawMaterialBatchDTO;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -17,13 +24,21 @@ public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
     /*
     -------------------------- Fields --------------------------
      */
-    
+    private IConnPool iConnPool;
+    private ConnectionHelper connectionHelper;
+    private final String PBTABLE_NAME = "productBatch";
+    private final String RTABLE_NAME = "recipe";
+    private final String RRTABLE_NAME = "rawMaterial_recipe";
     private final String TABLE_NAME = "rawMaterialBatch";
     
     /*
     ----------------------- Constructor -------------------------
      */
-    
+
+    public RawMaterialBatchDAO (IConnPool iConnPool) {
+        this.iConnPool = iConnPool;
+        connectionHelper = new ConnectionHelper(iConnPool);
+    }
     
     
     /*
@@ -84,6 +99,53 @@ public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
     @Override
     public int updateRawMaterialBatch(IRawMaterialBatchDTO rawMaterialBatchDTO) throws DALException {
         return 0;
+    }
+
+    /**
+     *
+     * @throws DALException
+     */
+
+    public void orderRawMaterial() throws DALException {
+
+        Connection c = iConnPool.getConn();
+
+        double amountLeft = 0;
+        double maxAmount = 0;
+        int idForMax = 0;
+
+        String getAmountQuery = String.format("SELECT %s FROM %s" , columns.amount, TABLE_NAME);
+        String getRawMaterialAmount = String.format("SELECT * FROM %s ORDER BY %s", RRTABLE_NAME , Columns.rm_recipeColumns.amount);
+        String getRawMaterialID = String.format("SELECT %s FROM %s ORDER BY %s", Columns.rm_recipeColumns.rawMaterial_id, RRTABLE_NAME, Columns.rm_recipeColumns.amount);
+
+        try{
+            PreparedStatement preparedStatementAmount = c.prepareStatement(getAmountQuery);
+            ResultSet resultSetAmount = preparedStatementAmount.executeQuery();
+
+            while (resultSetAmount.next()){
+                amountLeft = resultSetAmount.getDouble(columns.amount.toString());
+            }
+
+            PreparedStatement preparedStatementrawMaterial = c.prepareStatement(getRawMaterialAmount);
+            PreparedStatement preparedStatementID = c.prepareStatement(getRawMaterialID);
+            ResultSet resultSetRaw = preparedStatementrawMaterial.executeQuery();
+            ResultSet resultSetID = preparedStatementID.executeQuery();
+
+            while (resultSetRaw.next()) {
+                maxAmount = resultSetRaw.getDouble(Columns.rm_recipeColumns.amount.toString());
+            }
+            while (resultSetID.next()){
+                idForMax = resultSetID.getInt(Columns.rm_recipeColumns.rawMaterial_id.toString());
+            }
+
+
+
+
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+
     }
 
     /*

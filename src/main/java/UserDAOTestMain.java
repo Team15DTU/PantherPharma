@@ -1,9 +1,12 @@
 import dal.DALException;
 import dal.multitool.MultiTool;
+import dal.rawMaterialBatch.IRawMaterialBatchDAO;
+import dal.rawMaterialBatch.RawMaterialBatchDAO;
 import dal.user.IUserDAO;
 import dal.user.UserDAO;
 import db.IConnPool;
 import db.MySQL_DB;
+import dto.rawMaterialBatch.IRawMaterialBatchDTO;
 import dto.user.IUserDTO;
 import dto.user.UserDTO;
 import dto.user.UserRoleEnum;
@@ -21,8 +24,13 @@ public class UserDAOTestMain {
         IConnPool iConnPool = new MySQL_DB();
 
         // UserDAO
-        IUserDAO userDAO = new UserDAO(iConnPool);
+        //IUserDAO userDAO = new UserDAO(iConnPool);
 
+        RawMaterialBatchDAO rawMaterialBatchDAO = new RawMaterialBatchDAO(iConnPool);
+
+        rawMaterialBatchDAO.orderRawMaterial();
+
+        /*
         // User
         IUserDTO userDTO = new UserDTO("Rasmus Larsen", false, "kongen7", "igætterdetaldrig");
         IUserDTO userDTOUpdated = new UserDTO("Nicolaj Wassmann3", true, "megakongen2", "igætterdetaldrig");
@@ -35,6 +43,7 @@ public class UserDAOTestMain {
         System.out.println(user19);
         //user19.setUserRole(UserRoleEnum.produktionsleder);
         //userDAO.updateUser(user19);
+        */
 
         // Create user in DB
         //userDAO.createUser(userDTO);
