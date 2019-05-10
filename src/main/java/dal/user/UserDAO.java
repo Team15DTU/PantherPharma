@@ -311,31 +311,38 @@ public class UserDAO implements IUserDAO {
         try {
             c.setAutoCommit(false);
 
+            // region PreparedStatements
+
             PreparedStatement namePS = c.prepareStatement(updateNameQuery);
             PreparedStatement userNamePS = c.prepareStatement(updateUserNameQuery);
             PreparedStatement passwordPS = c.prepareStatement(updatePasswordQuery);
             PreparedStatement isAdminPS = c.prepareStatement(updateIsAdminQuery);
             PreparedStatement roleInsertPS = c.prepareStatement(insertRoleQuery);
 
-            // Checks is there is a change in users name and updates it if true
+            // endregion
+
+            // region Checks is there is a change in users name and updates it if true
             if (!userDTO.getName().equals(userDTOBeforeUpdate.getName())) {
                 setAndExecuteUpdatePreparedStatement(namePS, userDTO.getName(),userDTO.getUserID());
                 variablesChanged++;
             }
+            // endregion
 
-            // Checks is there is a change in users username and updates it if true
+            // region Checks is there is a change in users username and updates it if true
             if (!userDTO.getUserName().equals(userDTOBeforeUpdate.getUserName())) {
                 setAndExecuteUpdatePreparedStatement(userNamePS, userDTO.getUserName(), userDTO.getUserID());
                 variablesChanged++;
             }
+            // endregion
 
-            // Checks is there is a change in users password and updates it if true
+            // region Checks is there is a change in users password and updates it if true
             if (!userDTO.getPassword().equals(userDTOBeforeUpdate.getPassword())) {
                 setAndExecuteUpdatePreparedStatement(passwordPS, userDTO.getPassword(),userDTO.getUserID());
                 variablesChanged++;
             }
+            // endregion
 
-            // Checks is there is a change in users isAdmin and updates it if true
+            // region Checks is there is a change in users isAdmin and updates it if true
             if (userDTO.isAdmin() != userDTOBeforeUpdate.isAdmin()) {
                 isAdminPS.setBoolean(1,userDTO.isAdmin());
                 isAdminPS.setInt(2, userDTO.getUserID());
@@ -344,13 +351,16 @@ public class UserDAO implements IUserDAO {
 
                 variablesChanged++;
             }
+            // endregion
 
-            // Checks is there is a change in users password and updates it if true
+            // region Checks is there is a change in users password and updates it if true
             if (!userDTO.getPassword().equals(userDTOBeforeUpdate.getPassword())) {
                 setAndExecuteUpdatePreparedStatement(passwordPS, userDTO.getPassword(),userDTO.getUserID());
                 variablesChanged++;
             }
+            // endregion
 
+            // region Check is a change in users role and updates it if true
             if (!userDTO.getUserRole().equals(userDTOBeforeUpdate.getUserRole())) {
                 // INSERT INTO &s (%s) VALUES (?)
                 roleInsertPS.setInt(1, userDTO.getUserID());
@@ -358,6 +368,7 @@ public class UserDAO implements IUserDAO {
                 roleInsertPS.executeUpdate();
                 variablesChanged++;
             }
+            // endregion
 
             c.commit();
 
