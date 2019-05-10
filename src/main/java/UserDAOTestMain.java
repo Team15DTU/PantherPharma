@@ -24,11 +24,23 @@ public class UserDAOTestMain {
         IUserDAO userDAO = new UserDAO(iConnPool);
 
         // User
-        IUserDTO userDTO = new UserDTO("Rasmus Larsen", false, "megakongen", "igætterdetaldrig");
-        IUserDTO userDTOUpdated = new UserDTO("Nicolaj Wassmann2", true, "megakongen2", "igætterdetaldrig");
-        userDTO.setUserRole(UserRoleEnum.laborant);
+        IUserDTO userDTO = new UserDTO("Rasmus Larsen", false, "kongen7", "igætterdetaldrig");
+        IUserDTO userDTOUpdated = new UserDTO("Nicolaj Wassmann3", true, "megakongen2", "igætterdetaldrig");
+        userDTO.setUserRole(UserRoleEnum.farmaceut);
+
+        //userDAO.createUser(userDTO);
+
+        // 29 Far
+        IUserDTO user19 = userDAO.getUser(26);
+        System.out.println(user19);
+        //user19.setUserRole(UserRoleEnum.produktionsleder);
+        //userDAO.updateUser(user19);
+
         // Create user in DB
-        userDAO.createUser(userDTO);
+        //userDAO.createUser(userDTO);
+
+
+        /*
         System.out.println("Getted User: ");
         System.out.println(userDAO.getUser(5));
 
@@ -43,15 +55,22 @@ public class UserDAOTestMain {
             System.out.println(user);
         }
 
+
         userDTOUpdated.setUserID(15);
         userDTOUpdated.setUserRole(UserRoleEnum.laborant);
         System.out.println("before:");
         System.out.println(userDAO.getUser(15));
 
-        int changes = userDAO.updateUser(userDTOUpdated);
+        IUserDTO user14 = userDAO.getUser(14);
+        user14.setUserRole(UserRoleEnum.farmaceut);
+
+        userDTOUpdated.setUserRole(UserRoleEnum.farmaceut);
+        int changes = userDAO.updateUser(user14);
         System.out.println("after:");
         System.out.println(userDAO.getUser(15));
         System.out.println(changes);
+
+        */
 
     }
 
