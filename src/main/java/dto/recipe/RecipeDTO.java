@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * @author Rasmus Sander Larsen
  */
-public class RecipeDTO {
+public class RecipeDTO implements IRecipeDTO{
 
     /*
     -------------------------- Fields --------------------------
@@ -45,6 +45,58 @@ public class RecipeDTO {
     /*
     ---------------------- Support Methods ----------------------
      */
+
+    //Getter and SETTER
+
+    public int getRecipe_ID() {
+        return recipe_ID;
+    }
+
+    public void setRecipe_ID(int recipe_ID) {
+        this.recipe_ID = recipe_ID;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<RawMaterialDTO> getIngredienses() {
+        return ingredienses;
+    }
+
+    public void setIngredienses(List<RawMaterialDTO> ingredienses) {
+        this.ingredienses = ingredienses;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getStorageDate() {
+        return storageDate;
+    }
+
+    public void setStorageDate(LocalDate storageDate) {
+        this.storageDate = storageDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+
 
 
 }
