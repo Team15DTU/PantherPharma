@@ -51,58 +51,72 @@ public class RawMaterialDTO implements IRawMaterialDTO {
 
     // <editor-folder desc="Properties"
 
+    @Override
     public int getRawMaterialDTO_ID() {
         return rawMaterialDTO_ID;
     }
 
+    @Override
     public void setRawMaterialDTO_ID(int rawMaterialDTO_ID) {
         this.rawMaterialDTO_ID = rawMaterialDTO_ID;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
+    @Override
     public double getStdDeviation() {
         return stdDeviation;
     }
 
+    @Override
     public void setStdDeviation(double stdDeviation) {
         this.stdDeviation = stdDeviation;
     }
 
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
     public boolean isUsed() {
         return isUsed;
     }
 
+    @Override
     public void setUsed(boolean used) {
         isUsed = used;
     }
 
+    @Override
     public int getRecipe_id() {
         return recipe_id;
     }
 
+    @Override
     public void setRecipe_id(int recipe_id) {
         this.recipe_id = recipe_id;
     }
 
+    @Override
     public double getAmount() {
         return amount;
     }
 
+    @Override
     public void setAmount(double amount) {
         this.amount = amount;
     }
 
+    @Override
     public boolean isActive() {
         return isActive;
     }
 
+    @Override
     public void setActive(boolean active) {
         isActive = active;
     }

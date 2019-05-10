@@ -48,7 +48,7 @@ public interface IRawMaterialDAO {
     /**
      * This method updates an existing raw material with the information in the inputted IRawMaterialDTO object.
      * @param rawMaterialDTO contains the information that the raw materials should be updated with.
-     * @return a number corresponding to the number of columns that is changed as a result of the update.
+     * @return a number corresponding to the number of recipe that is changed as a result of the update.
      * @throws DALException This methods throws a DALException.
      */
     int updateRawMaterial (IRawMaterialDTO rawMaterialDTO) throws DALException;

@@ -1,6 +1,8 @@
 package dal.user;
 
+import dal.Columns;
 import dal.DALException;
+import dal.Tables;
 import db.IConnPool;
 import dto.user.IUserDTO;
 import dto.user.UserDTO;
@@ -15,7 +17,7 @@ import java.util.List;
  */
 public class UserDAO implements IUserDAO {
 
-    // Names on columns in the DB table: Jobs
+    // Names on recipe in the DB table: Jobs
     public enum columns {
         user_id, name, isAdmin, userName, password
     }
@@ -42,10 +44,9 @@ public class UserDAO implements IUserDAO {
     ------------------------ Properties -------------------------
      */
 
-    // <editor-folder desc="Properties"
+    // region Properties
 
-
-    // </editor-folder>
+    // endregion
     
     /*
     ---------------------- Public Methods -----------------------
@@ -60,6 +61,8 @@ public class UserDAO implements IUserDAO {
     @Override
     public boolean createUser(IUserDTO userDTO) throws DALException {
 
+        int assignedUserID = -1;
+
         Connection c = iConnPool.getConn();
 
         String insertQuery = String.format("INSERT INTO %s (%s, %s, %s, %s, %s) VALUES (?,?,?,?,?)",
@@ -70,7 +73,8 @@ public class UserDAO implements IUserDAO {
         try {
             c.setAutoCommit(false);
 
-            PreparedStatement insertStatement = c.prepareStatement(insertQuery);
+            // region Creation of user
+            PreparedStatement insertStatement = c.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);
             PreparedStatement roleStatment = c.prepareStatement(roleQuery);
 
             insertStatement.setInt(1,userDTO.getUserID());
@@ -81,13 +85,28 @@ public class UserDAO implements IUserDAO {
 
             insertStatement.executeUpdate();
 
-            //roleStatment.setInt(1, 6);
+            // endregion
 
-            //roleStatment.executeUpdate();
+            // region Get assigned userID
+
+            ResultSet generatedKeysRS = insertStatement.getGeneratedKeys();
+
+            if (generatedKeysRS.next()) {
+                assignedUserID = generatedKeysRS.getInt(1);
+            }
+
+            // endregion
+
+            // region Creation of role
+
+            roleStatment.setInt(1, assignedUserID);
+
+            roleStatment.executeUpdate();
+
+            // endregion
 
             c.commit();
             return true;
-
 
         } catch (SQLException e) {
             catchSQLExceptionAndDoRollback(c, e, "UserDAO.createUser");
@@ -116,7 +135,18 @@ public class UserDAO implements IUserDAO {
         String getQuery = String.format("SELECT * FROM %s WHERE %s = ?",
                 TABLE_NAME, columns.user_id);
 
+        String getLaborantId = String.format("SELECT %s FROM %s WHERE %s = ?",
+                Columns.laborant.laborant_id, Tables.laborant, Columns.laborant.laborant_id);
+
+        String getFarmaceutId = String.format("SELECT %s FROM %s WHERE %s = ?",
+                Columns.farmaceut.farmaceut_id, Tables.farmaceut, Columns.farmaceut.farmaceut_id);
+
+        String getproduktionslederId = String.format("SELECT %s FROM %s WHERE %s = ?",
+                Columns.produktionsleder.produktionsleder_id, Tables.produktionsleder, Columns.produktionsleder.produktionsleder_id);
+
         try {
+
+            // region Sets user with information from DB.
             PreparedStatement pStatement = c.prepareStatement(getQuery);
             pStatement.setInt(1, userID);
 
@@ -130,6 +160,36 @@ public class UserDAO implements IUserDAO {
                 userDTOToReturn.setAdmin(rs.getBoolean(columns.isAdmin.toString()));
                 userDTOToReturn.setPassword(rs.getString(columns.password.toString()));
             }
+            // endregion
+
+            // region Sets user with correct userRole
+
+            PreparedStatement laborantPS = c.prepareStatement(getLaborantId);
+            laborantPS.setInt(1,userID);
+
+            ResultSet laborantRS = laborantPS.executeQuery();
+
+            PreparedStatement farmaceutPS = c.prepareStatement(getFarmaceutId);
+            farmaceutPS.setInt(1, userID);
+
+            ResultSet farmaceutRS = farmaceutPS.executeQuery();
+
+            PreparedStatement produktionslederPS = c.prepareStatement(getproduktionslederId);
+            produktionslederPS.setInt(1, userID);
+
+            ResultSet produktionslederRS = produktionslederPS.executeQuery();
+
+            if(laborantRS.next()) {
+                userDTOToReturn.setUserRole(UserRoleEnum.laborant);
+            } else if (farmaceutRS.next()) {
+                userDTOToReturn.setUserRole(UserRoleEnum.farmaceut);
+            } else if (produktionslederRS.next()) {
+                userDTOToReturn.setUserRole(UserRoleEnum.produktionsleder);
+            } else{
+                userDTOToReturn.setUserRole(null);
+            }
+
+            // endregion
 
         } catch (SQLException e ) {
             throw new DALException(e.getMessage());
@@ -154,7 +214,8 @@ public class UserDAO implements IUserDAO {
 
         Connection c = iConnPool.getConn();
 
-        String userIDQuery = String.format("SELECT %s FROM %s",columns.user_id,TABLE_NAME);
+        String userIDQuery = String.format("SELECT %s FROM %s",
+                columns.user_id,TABLE_NAME);
 
         try {
             Statement statement = c.createStatement();
@@ -220,7 +281,7 @@ public class UserDAO implements IUserDAO {
      * The user is updated with the information from the inputted IUserDTO object.
      *
      * @param userDTO contains the information that the existing user is updated with.
-     * @return an int matching the number of columns that is changed as a result of this method.
+     * @return an int matching the number of recipe that is changed as a result of this method.
      * @throws DALException This methods throws a DALException.
      */
     @Override
@@ -231,6 +292,7 @@ public class UserDAO implements IUserDAO {
         Connection c = iConnPool.getConn();
 
         IUserDTO userDTOBeforeUpdate = getUser(userDTO.getUserID());
+        userDTOBeforeUpdate.setUserRole(UserRoleEnum.produktionsleder);
 
         String updateNameQuery = String.format("UPDATE %s SET %s = ? WHERE %s = ?",
                 TABLE_NAME,columns.name, columns.user_id);
@@ -244,40 +306,43 @@ public class UserDAO implements IUserDAO {
         String updateIsAdminQuery = String.format("UPDATE %s SET %s = ? WHERE %s = ?",
                 TABLE_NAME,columns.isAdmin, columns.user_id);
 
-        String deleteRoleQuery = String.format("DELETE FROM %s WHERE %s = ?",
-                userDTO.getUserRole(), userDTO.getUserRole()+"_id");
-
-        String insertRoleQuery = String.format("INSERT INTO &s (%s) VALUES (?)",
+        String insertRoleQuery = String.format("INSERT INTO %s (%s) VALUES (?)",
                 userDTO.getUserRole(),userDTO.getUserRole()+"_id");
         try {
             c.setAutoCommit(false);
+
+            // region PreparedStatements
 
             PreparedStatement namePS = c.prepareStatement(updateNameQuery);
             PreparedStatement userNamePS = c.prepareStatement(updateUserNameQuery);
             PreparedStatement passwordPS = c.prepareStatement(updatePasswordQuery);
             PreparedStatement isAdminPS = c.prepareStatement(updateIsAdminQuery);
-            PreparedStatement roleDeletePS = c.prepareStatement(deleteRoleQuery);
             PreparedStatement roleInsertPS = c.prepareStatement(insertRoleQuery);
 
-            // Checks is there is a change in users name and updates it if true
+            // endregion
+
+            // region Checks is there is a change in users name and updates it if true
             if (!userDTO.getName().equals(userDTOBeforeUpdate.getName())) {
                 setAndExecuteUpdatePreparedStatement(namePS, userDTO.getName(),userDTO.getUserID());
                 variablesChanged++;
             }
+            // endregion
 
-            // Checks is there is a change in users username and updates it if true
+            // region Checks is there is a change in users username and updates it if true
             if (!userDTO.getUserName().equals(userDTOBeforeUpdate.getUserName())) {
                 setAndExecuteUpdatePreparedStatement(userNamePS, userDTO.getUserName(), userDTO.getUserID());
                 variablesChanged++;
             }
+            // endregion
 
-            // Checks is there is a change in users password and updates it if true
+            // region Checks is there is a change in users password and updates it if true
             if (!userDTO.getPassword().equals(userDTOBeforeUpdate.getPassword())) {
                 setAndExecuteUpdatePreparedStatement(passwordPS, userDTO.getPassword(),userDTO.getUserID());
                 variablesChanged++;
             }
+            // endregion
 
-            // Checks is there is a change in users isAdmin and updates it if true
+            // region Checks is there is a change in users isAdmin and updates it if true
             if (userDTO.isAdmin() != userDTOBeforeUpdate.isAdmin()) {
                 isAdminPS.setBoolean(1,userDTO.isAdmin());
                 isAdminPS.setInt(2, userDTO.getUserID());
@@ -286,29 +351,24 @@ public class UserDAO implements IUserDAO {
 
                 variablesChanged++;
             }
+            // endregion
 
-            // Checks is there is a change in users password and updates it if true
+            // region Checks is there is a change in users password and updates it if true
             if (!userDTO.getPassword().equals(userDTOBeforeUpdate.getPassword())) {
                 setAndExecuteUpdatePreparedStatement(passwordPS, userDTO.getPassword(),userDTO.getUserID());
                 variablesChanged++;
             }
+            // endregion
 
-            /* TODO: Find a way to code the changes to roles.
-            if (userDTO.getUserRole() != null && userDTOBeforeUpdate.getUserRole() != null){
-                if (!userDTO.getUserRole().equals(userDTOBeforeUpdate.getUserRole())) {
-                    if (userDTOBeforeUpdate.getUserRole() != null) {
-                        // DELETE FROM %s WHERE %s = ?
-                        roleDeletePS.setInt(1, userDTO.getUserID());
-                    }
+            // region Check is a change in users role and updates it if true
+            if (!userDTO.getUserRole().equals(userDTOBeforeUpdate.getUserRole())) {
                 // INSERT INTO &s (%s) VALUES (?)
                 roleInsertPS.setInt(1, userDTO.getUserID());
 
-                roleDeletePS.executeUpdate();
                 roleInsertPS.executeUpdate();
                 variablesChanged++;
-                }
             }
-            */
+            // endregion
 
             c.commit();
 

@@ -66,6 +66,20 @@ public class MultiTool {
         }
 
     }
+
+    public void executeQuery (String query) throws DALException {
+        Connection c = iConnPool.getConn();
+
+        try {
+            Statement statement = c.createStatement();
+            statement.executeUpdate(query);
+
+        } catch (SQLException e) {
+            throw new DALException(e.getMessage());
+        } finally {
+            iConnPool.releaseConnection(c);
+        }
+    }
     
     /*
     ---------------------- Support Methods ----------------------

@@ -77,7 +77,7 @@ public class ProductBatchDAO implements IProductBatchDAO {
      * This method updates an existing product batch with the information in the inputted Object.
      *
      * @param productBatchDTO contains the information that the product batch is updated with.
-     * @return a number corresponding to the number of columns that is changed as a result of the update.
+     * @return a number corresponding to the number of recipe that is changed as a result of the update.
      * @throws DALException This methods throws a DALException.
      */
     @Override
