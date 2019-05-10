@@ -108,6 +108,17 @@ public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
 
     public void orderRawMaterial() throws DALException {
 
+
+        String query1 = "select rawMaterial_id from rawMaterial_recipe where (select MAX(amount) from rawMaterial_recipe) = amount";
+
+        String query2 = "select rawMaterialBatch_id from rawMaterialBatch_rawMaterial " +
+                "inner join rawMaterial on rawMaterial.rawMaterial_id = rawMaterialBatch_rawMaterial.rawMaterialBatch_id";
+
+        String query3 = "select SUM(amount) from rawMaterialBatch where rawMaterialBatch_id in " +
+                "(select rawMaterialBatch_id from rawMaterialBatch_rawMaterial" +
+                " inner join rawMaterial on rawMaterial.rawMaterial_id = rawMaterialBatch_rawMaterial.rawMaterialBatch_id)";
+
+
         Connection c = iConnPool.getConn();
 
         double amountLeft = 0;
