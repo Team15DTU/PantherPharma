@@ -42,13 +42,13 @@ public interface IRecipeDAO {
     IRecipeDTO getRecipe (int recipeID) throws DALException;
 
     /**
-     * This method gets a specific IRecipeDTO object containing the information
-     * matching the recipe with the inputted recipeName.
+     * This method gets a List of IRecipeDTO object containing the information
+     * matching the inputted recipeName.
      * @param recipeName is the recipeName we are looking for.
-     * @return a IRecipeDTO object with data matching the inputted recipeName.
+     * @return a List<IRecipeDTO> object containing objects matching the inputted recipeName.
      * @throws DALException This methods throws a DALException.
      */
-    IRecipeDTO getRecipe (String recipeName) throws DALException;
+    List<IRecipeDTO> getRecipeList (String recipeName) throws DALException;
 
     /**
      * This method gets a specific IRecipeDTO object containing the information

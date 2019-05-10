@@ -325,22 +325,47 @@ public class RecipeDAO implements IRecipeDAO {
             throw new DALException(e.getMessage());
         } finally {
             iConnPool.releaseConnection(c);
-
         }
         return recipeDTOList;
     }
 
     /**
-     * This method gets a specific IRecipeDTO object containing the information
-     * matching the recipe with the inputted recipeName.
+     * This method gets a List of IRecipeDTO object containing the information
+     * matching the inputted recipeName.
      *
      * @param recipeName is the recipeName we are looking for.
-     * @return a IRecipeDTO object with data matching the inputted recipeName.
+     * @return a List<IRecipeDTO> object containing objects matching the inputted recipeName.
      * @throws DALException This methods throws a DALException.
      */
     @Override
-    public IRecipeDTO getRecipe(String recipeName) throws DALException {
-        return null;
+    public List<IRecipeDTO> getRecipeList(String recipeName) throws DALException {
+
+        // List to return.
+        List<IRecipeDTO> recipeDTOList = new ArrayList<>();
+
+        Connection c = iConnPool.getConn();
+
+        String getRecipeIDFromRecipeNameQuery = String.format("SELECT %s FROM %s WHERE %s = ?",
+                Columns.recipe.recipe_id, Tables.recipe, Columns.recipe.name);
+
+        try {
+            PreparedStatement recipeIdFromRecipeNamePS = c.prepareStatement(getRecipeIDFromRecipeNameQuery);
+            recipeIdFromRecipeNamePS.setString(1, recipeName);
+
+            ResultSet recipeIdFromRecipeNameRS = recipeIdFromRecipeNamePS.executeQuery();
+
+            while (recipeIdFromRecipeNameRS.next()) {
+                int recipeID = recipeIdFromRecipeNameRS.getInt(Columns.recipe.recipe_id.toString());
+                recipeDTOList.add(getRecipe(recipeID));
+            }
+
+        } catch (SQLException e) {
+            throw new DALException(e.getMessage());
+        } finally {
+            iConnPool.releaseConnection(c);
+        }
+
+        return recipeDTOList;
     }
 
     /**
@@ -354,7 +379,61 @@ public class RecipeDAO implements IRecipeDAO {
      */
     @Override
     public IRecipeDTO getRecipe(String recipeName, LocalDate date) throws DALException {
+ /*
+        Connection c = iConnPool.getConn();
+
+        String getRecipeIDOnDate = String.format("SELECT %s FROM %s WHERE %s < ? " +
+                " UNION SELECT %s FROM %s" +
+                " RIGHT JOIN %s ON %s = %s " +
+                " WHERE ? = BETWEEN %s AND %s",
+                Columns.recipe.recipe_id, Tables.recipe, Columns.recipe.startDate,
+                Columns.oldRecipe.recipe_id, Tables.oldRecipe,
+                Tables.oldRecipe, Tables.recipe + "." + Columns.recipe.recipe_id, Tables.oldRecipe + "." + Columns.oldRecipe.recipe_id,
+                Tables.oldRecipe + "." + Columns.oldRecipe.endDate, Tables.recipe + "."+ Columns.recipe.startDate);
+
+        try {
+            PreparedStatement recipeIDOnDatePS = c.prepareStatement(getRecipeIDOnDate);
+            recipeIDOnDatePS.setDate(1, Date.valueOf(date));
+            recipeIDOnDatePS.setDate(2, Date.valueOf(date));
+
+        } catch (SQLException e) {
+            throw new DALException(e.getMessage());
+        } finally {
+            iConnPool.releaseConnection(c);
+        }
         return null;
+
+        */
+
+        // IRecipe Object to return.
+        IRecipeDTO recipeDTO = new RecipeDTO();
+
+        Connection c = iConnPool.getConn();
+
+        String getRecipeIDFromRecipeNameQuery = String.format("SELECT %s FROM %s WHERE %s = ?",
+                Columns.recipe.recipe_id, Tables.recipe, Columns.recipe.name);
+
+        try {
+            PreparedStatement recipeIdFromRecipeNamePS = c.prepareStatement(getRecipeIDFromRecipeNameQuery);
+            recipeIdFromRecipeNamePS.setString(1, recipeName);
+
+            ResultSet recipeIdFromRecipeNameRS = recipeIdFromRecipeNamePS.executeQuery();
+
+            while (recipeIdFromRecipeNameRS.next()) {
+                int recipeID = recipeIdFromRecipeNameRS.getInt(Columns.recipe.recipe_id.toString());
+                IRecipeDTO recipeDTOTemp = getRecipe(recipeID);
+                if (isBetween(date,recipeDTOTemp.getStartDate(), recipeDTOTemp.getEndDate())) {
+                    recipeDTO= recipeDTOTemp;
+                    break;
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new DALException(e.getMessage());
+        } finally {
+            iConnPool.releaseConnection(c);
+        }
+        return recipeDTO;
     }
 
     /**
@@ -373,4 +452,9 @@ public class RecipeDAO implements IRecipeDAO {
     ---------------------- Support Methods ----------------------
      */
 
+    private boolean isBetween (LocalDate date, LocalDate startDate, LocalDate endDate) {
+
+        return !(date.isBefore(startDate) || date.isAfter(endDate));
+
+    }
 }
