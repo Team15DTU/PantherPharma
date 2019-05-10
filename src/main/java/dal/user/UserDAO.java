@@ -17,10 +17,10 @@ import java.util.List;
  */
 public class UserDAO implements IUserDAO {
 
-    // Names on recipe in the DB table: Jobs
     public enum columns {
         user_id, name, isAdmin, userName, password
     }
+
 
     /*
     -------------------------- Fields --------------------------

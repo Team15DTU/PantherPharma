@@ -1,7 +1,5 @@
 package dto.rawMaterial;
 
-import dal.rawMaterial.RawMaterialDAO;
-
 /**
  * @author Rasmus Sander Larsen
  */
