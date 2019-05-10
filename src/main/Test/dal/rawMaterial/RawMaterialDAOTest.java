@@ -3,12 +3,15 @@ package dal.rawMaterial;
 import dal.DALException;
 import db.IConnPool;
 import db.MySQL_DB;
+import dto.rawMaterial.IRawMaterialDTO;
 import dto.rawMaterial.RawMaterialDTO;
 import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -40,18 +43,36 @@ public class RawMaterialDAOTest {
         RawMaterialDTO test = (RawMaterialDTO) dao.getRawMaterial(1);
         assertEquals("Æbler",test.getName());
     }
+    
 
     @Test
-    public void getRawMaterialInRecipe() {
-        
+    public void getRawMaterialList() throws DALException {
+
+        List<IRawMaterialDTO> test = new ArrayList<>();
+        test = dao.getRawMaterialList();
+
+        assertEquals("Æbler",test.get(0).getName());
+        assertEquals("Bananer", test.get(1).getName());
+        assertEquals("Sukker", test.get(2).getName());
+
+
 
     }
 
     @Test
-    public void getRawMaterialList() {
-    }
+    public void updateRawMaterial() throws DALException {
+        IRawMaterialDTO test = new RawMaterialDTO(3,"Citroner",5);
+        dao.updateRawMaterial(test);
 
-    @Test
-    public void updateRawMaterial() {
+        assertEquals("Citroner",dao.getRawMaterial(3).getName());
+
+        IRawMaterialDTO test2 = new RawMaterialDTO(3,"Sukker",5);
+        dao.updateRawMaterial(test2);
+
+        assertEquals("Sukker",dao.getRawMaterial(3).getName());
+
+
+
+
     }
 }
