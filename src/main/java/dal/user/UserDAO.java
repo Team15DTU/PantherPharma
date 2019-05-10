@@ -21,7 +21,6 @@ public class UserDAO implements IUserDAO {
         user_id, name, isAdmin, userName, password
     }
 
-
     /*
     -------------------------- Fields --------------------------
      */

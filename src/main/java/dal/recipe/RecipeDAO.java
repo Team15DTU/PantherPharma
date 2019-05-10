@@ -103,10 +103,12 @@ public class RecipeDAO implements IRecipeDAO {
             isValidPS.setInt(1,recipeDTO.getCreatedBy_ID());
             ResultSet isValidRS = isValidPS.executeQuery();
 
-            isValidRS.next();
-            if (recipeDTO.getCreatedBy_ID() == isValidRS.getInt(Columns.farmaceut.farmaceut_id.toString())) {
-                isRecipeCreatedByValidUser = true;
+            while(isValidRS.next()){
+                if (recipeDTO.getCreatedBy_ID() == isValidRS.getInt(Columns.farmaceut.farmaceut_id.toString())) {
+                    isRecipeCreatedByValidUser = true;
+                }
             }
+
             // endregion
 
             // region recipe IS valid
@@ -271,12 +273,12 @@ public class RecipeDAO implements IRecipeDAO {
             while (rmRS.next()) {
                 IRawMaterialDTO rmUsed = new RawMaterialDTO();
                 rmUsed.setRecipe_id(recipeID);
-                rmUsed.setRawMaterialDTO_ID(rmRS.getInt(Columns.rm_recipeColumns.rawMaterial_id.toString()));
+                rmUsed.setRawMaterialDTO_ID(rmRS.getInt(Columns.rm_recipe.rawMaterial_id.toString()));
                 rmUsed.setName(rmRS.getString(Columns.rawMaterial.name.toString()));
                 rmUsed.setStdDeviation(rmRS.getDouble(Columns.rawMaterial.stdDeviation.toString()));
                 rmUsed.setUsed(true);
-                rmUsed.setActive(rmRS.getBoolean(Columns.rm_recipeColumns.active.toString()));
-                rmUsed.setAmount(rmRS.getDouble(Columns.rm_recipeColumns.amount.toString()));
+                rmUsed.setActive(rmRS.getBoolean(Columns.rm_recipe.active.toString()));
+                rmUsed.setAmount(rmRS.getDouble(Columns.rm_recipe.amount.toString()));
                 recipeDTOToReturn.addRawMaterial(rmUsed);
             }
 

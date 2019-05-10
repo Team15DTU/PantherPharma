@@ -5,10 +5,28 @@ package dto.rawMaterialBatch;
  */
 public interface IRawMaterialBatchDTO {
 
+    // region Getters and Setters
+
+    int getRawMaterialBatchID();
+
+    void setRawMaterialBatchID(int rawMaterialBatchID);
+
+    int getRawMaterialID();
+
+    void setRawMaterialID(int rawMaterialID);
+
+    boolean isResidue();
+
+    void setResidue(boolean residue);
+
+    double getAmount() ;
+
+    void setAmount(double amount);
+
+    // endregion
     
     /*
     ---------------------- Public Methods -----------------------
      */
-
 
 }

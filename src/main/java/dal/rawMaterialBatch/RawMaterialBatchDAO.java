@@ -3,23 +3,17 @@ package dal.rawMaterialBatch;
 import dal.Columns;
 import dal.ConnectionHelper;
 import dal.DALException;
+import dal.Tables;
 import db.IConnPool;
 import dto.rawMaterialBatch.IRawMaterialBatchDTO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 
 /**
  * @author Rasmus Sander Larsen
  */
 public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
-
-    public enum columns {
-        rawMaterialBatch_id, isResidue, amount
-    }
 
     /*
     -------------------------- Fields --------------------------
@@ -45,10 +39,10 @@ public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
     ------------------------ Properties -------------------------
      */
 
-    // <editor-folder desc="Properties"
+    // region Properties
 
 
-    // </editor-folder>
+    // endregion
     
     /*
     ---------------------- Public Methods -----------------------
@@ -63,6 +57,55 @@ public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
      */
     @Override
     public boolean createRawMaterialBatch(IRawMaterialBatchDTO rawMaterialBatchDTO) throws DALException {
+
+        int assignedRMB_ID = -1;
+
+        Connection c = iConnPool.getConn();
+
+        // Query for insertion of rawMaterialBatch information into rawMaterialBatch table.
+        String insertQuery = String.format("INSERT INTO %s (%s, %s) VALUES (?,?)",
+                Tables.rawMaterialBatch, Columns.rawMaterialBatch.isResidue, Columns.rawMaterialBatch.amount);
+
+        // Query for insertion of rawMaterialBatch_id and rawMaterial_id in connection table.
+        String connectionQuery = String.format("INSERT INTO %s (%s, %s) VALUES (?,?)",
+                Tables.rawMaterialBatch_rawMaterial, Columns.rawMaterialBatch_rawMaterial.rawMaterialBatch_id,
+                Columns.rawMaterialBatch_rawMaterial.rawMaterial_id);
+
+        try {
+            c.setAutoCommit(false);
+
+            // region Creation of RawMaterialBatch
+            PreparedStatement insertPS = c.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);
+            insertPS.setBoolean(1, rawMaterialBatchDTO.isResidue());
+            insertPS.setDouble(2,rawMaterialBatchDTO.getAmount());
+
+            insertPS.executeUpdate();
+
+            // endregion
+
+            // region Getting created RawMaterialBatch_id
+            ResultSet insertGeneratedKeys = insertPS.getGeneratedKeys();
+
+            while (insertGeneratedKeys.next()) {
+                assignedRMB_ID = insertGeneratedKeys.getInt(1);
+            }
+            // endregion
+
+            // region Creation of connection between RawMaterialBatch and RawMaterial
+            PreparedStatement connectionPS = c.prepareStatement(connectionQuery);
+            connectionPS.setInt(1,assignedRMB_ID);
+            connectionPS.setInt(2,rawMaterialBatchDTO.getRawMaterialID());
+
+            connectionPS.executeUpdate();
+            // endregion
+
+            c.commit();
+
+        } catch (SQLException e) {
+            connectionHelper.catchSQLExceptionAndDoRollback(c,e,"RawMaterialBatch.createRawMaterialBatch");
+        } finally {
+            connectionHelper.finallyActionsForConnection(c,"RawMaterialBatch.createRawMaterialBatch");
+        }
         return false;
     }
 
@@ -108,7 +151,6 @@ public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
 
     public void orderRawMaterial() throws DALException {
 
-
         String query1 = "select rawMaterial_id from rawMaterial_recipe where (select MAX(amount) from rawMaterial_recipe) = amount";
 
         String query2 = "select rawMaterialBatch_id from rawMaterialBatch_rawMaterial " +
@@ -125,16 +167,17 @@ public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
         double maxAmount = 0;
         int idForMax = 0;
 
-        String getAmountQuery = String.format("SELECT %s FROM %s" , columns.amount, TABLE_NAME);
-        String getRawMaterialAmount = String.format("SELECT * FROM %s ORDER BY %s", RRTABLE_NAME , Columns.rm_recipeColumns.amount);
-        String getRawMaterialID = String.format("SELECT %s FROM %s ORDER BY %s", Columns.rm_recipeColumns.rawMaterial_id, RRTABLE_NAME, Columns.rm_recipeColumns.amount);
+        String getAmountQuery = String.format("SELECT %s FROM %s" ,
+                Columns.rawMaterialBatch.amount, Tables.rawMaterialBatch);
+        String getRawMaterialAmount = String.format("SELECT * FROM %s ORDER BY %s", RRTABLE_NAME , Columns.rm_recipe.amount);
+        String getRawMaterialID = String.format("SELECT %s FROM %s ORDER BY %s", Columns.rm_recipe.rawMaterial_id, RRTABLE_NAME, Columns.rm_recipe.amount);
 
         try{
             PreparedStatement preparedStatementAmount = c.prepareStatement(getAmountQuery);
             ResultSet resultSetAmount = preparedStatementAmount.executeQuery();
 
             while (resultSetAmount.next()){
-                amountLeft = resultSetAmount.getDouble(columns.amount.toString());
+                amountLeft = resultSetAmount.getDouble(Columns.rawMaterialBatch.amount.toString());
             }
 
             PreparedStatement preparedStatementrawMaterial = c.prepareStatement(getRawMaterialAmount);
@@ -143,10 +186,10 @@ public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
             ResultSet resultSetID = preparedStatementID.executeQuery();
 
             while (resultSetRaw.next()) {
-                maxAmount = resultSetRaw.getDouble(Columns.rm_recipeColumns.amount.toString());
+                maxAmount = resultSetRaw.getDouble(Columns.rm_recipe.amount.toString());
             }
             while (resultSetID.next()){
-                idForMax = resultSetID.getInt(Columns.rm_recipeColumns.rawMaterial_id.toString());
+                idForMax = resultSetID.getInt(Columns.rm_recipe.rawMaterial_id.toString());
             }
 
 

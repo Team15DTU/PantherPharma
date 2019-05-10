@@ -143,7 +143,8 @@ public class RecipeDTO implements IRecipeDTO {
             toStringBuilder.append(" // ALL RawMaterials Used In This Recipe: ");
             for (IRawMaterialDTO rawMaterialDTO : ingredients) {
                 toStringBuilder.append("(RW_ID: " + rawMaterialDTO.getRawMaterialDTO_ID());
-                toStringBuilder.append(", Name: "+ rawMaterialDTO.getName() + "), ") ;
+                toStringBuilder.append(", Name: "+ rawMaterialDTO.getName() ) ;
+                toStringBuilder.append(", Amount: " + rawMaterialDTO.getAmount() + "), ");
             }
 
         }

@@ -3,27 +3,65 @@ package dto.rawMaterialBatch;
 /**
  * @author Rasmus Sander Larsen
  */
-public class RawMaterialBatchDTO {
+public class RawMaterialBatchDTO implements IRawMaterialBatchDTO {
 
     /*
     -------------------------- Fields --------------------------
      */
     
-    private int rawMaterialBatchID;
-    private boolean isResidue;
+    private int rawMaterialBatchID = -1;
+    private int rawMaterialID;
+    private boolean isResidue = false;
     private double amount;
     
     /*
     ----------------------- Constructor -------------------------
      */
     
-    
+    public RawMaterialBatchDTO () {}
+
+    public RawMaterialBatchDTO (int rawMaterialID, double amount) {
+        this.rawMaterialID = rawMaterialID;
+        this.amount = amount;
+    }
     
     /*
     ------------------------ Properties -------------------------
      */
 
     // <editor-folder desc="Properties"
+
+    public int getRawMaterialBatchID() {
+        return rawMaterialBatchID;
+    }
+
+    public void setRawMaterialBatchID(int rawMaterialBatchID) {
+        this.rawMaterialBatchID = rawMaterialBatchID;
+    }
+
+    public int getRawMaterialID() {
+        return rawMaterialID;
+    }
+
+    public void setRawMaterialID(int rawMaterialID) {
+        this.rawMaterialID = rawMaterialID;
+    }
+
+    public boolean isResidue() {
+        return isResidue;
+    }
+
+    public void setResidue(boolean residue) {
+        isResidue = residue;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
 
 
     // </editor-folder>

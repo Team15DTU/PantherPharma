@@ -1,7 +1,9 @@
 package dal.rawMaterial;
 
+import dal.Columns;
 import dal.ConnectionHelper;
 import dal.DALException;
+import dal.Tables;
 import db.IConnPool;
 import dto.rawMaterial.IRawMaterialDTO;
 import dto.rawMaterial.RawMaterialDTO;
@@ -232,6 +234,26 @@ public class RawMaterialDAO implements IRawMaterialDAO {
         }
 
         return variableChanges;
+    }
+
+    public List<IRawMaterialDTO> rmToReOrder () throws DALException {
+        // List for Raw Materials to reorder.
+        List<IRawMaterialDTO> rmToReOrder = new ArrayList<>();
+
+        Connection c = iConnPool.getConn();
+
+        String getMaxAmountPrRMQuery = String.format("SELECT %s, MAX(%s) FROM %s GROUP BY %s" +
+                Columns.rawMaterial.rawMaterial_id, Columns.rm_recipe.amount, Tables.rawMaterial_recipe, Columns.rm_recipe.rawMaterial_id);
+
+
+        try {
+            PreparedStatement maxAmountPS = c.prepareStatement(getMaxAmountPrRMQuery);
+
+        } catch (SQLException e) {
+            throw new DALException(e.getMessage());
+        }
+
+        return rmToReOrder;
     }
 
     /*
