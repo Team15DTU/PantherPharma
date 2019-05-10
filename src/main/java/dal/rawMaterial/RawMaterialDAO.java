@@ -2,7 +2,6 @@ package dal.rawMaterial;
 
 import dal.ConnectionHelper;
 import dal.DALException;
-import dal.user.UserDAO;
 import db.IConnPool;
 import dto.rawMaterial.IRawMaterialDTO;
 import dto.rawMaterial.RawMaterialDTO;
@@ -22,7 +21,7 @@ public class RawMaterialDAO implements IRawMaterialDAO {
     }
 
     // Names on recipe in the DB table: rawMaterial_recipe
-    public enum rm_recipColumns {
+    public enum rm_recipeColumns {
         rawMaterial_id, recipe_id, active, amount
 
     }
@@ -49,10 +48,10 @@ public class RawMaterialDAO implements IRawMaterialDAO {
     ------------------------ Properties -------------------------
      */
 
-    // <editor-folder desc="Properties"
+    // region Properties
 
 
-    // </editor-folder>
+    // endregion
     
     /*
     ---------------------- Public Methods -----------------------
@@ -70,6 +69,7 @@ public class RawMaterialDAO implements IRawMaterialDAO {
 
         Connection c = iConnPool.getConn();
 
+        // Query for Insertion of raw material information.
         String createQuery = String.format("INSERT INTO %s (%s, %s, %s) VALUES (?,?,?)",
                 TABLE_NAME, columns.rawMaterial_id, columns.name, columns.stdDeviation);
 
@@ -120,56 +120,17 @@ public class RawMaterialDAO implements IRawMaterialDAO {
 
             ResultSet rs = pStatement.executeQuery();
 
-            // Sets User with information from DB.
+            // region Sets User with information from DB.
             while (rs.next()) {
                 rawMaterialDTOToReturn.setRawMaterialDTO_ID(rs.getInt(columns.rawMaterial_id.toString()));
                 rawMaterialDTOToReturn.setName(rs.getString(columns.name.toString()));
                 rawMaterialDTOToReturn.setStdDeviation(rs.getDouble(columns.stdDeviation.toString()));
+                rawMaterialDTOToReturn.setUsed(false);
             }
+            // endregion
 
         } catch (SQLException e) {
             System.out.println("SQLException in RawMaterialDAO.getRawMaterial");
-            throw new DALException(e.getMessage());
-        } finally {
-            iConnPool.releaseConnection(c);
-        }
-
-        return rawMaterialDTOToReturn;
-    }
-
-    /**
-     * This method gets a IRawMaterial object that contains the information matching the inputted
-     *
-     * @param rawMaterial_ID is the ID on the raw material the method should return.
-     * @return a IRawMaterial object containing the information matching the inputted ID.
-     * @throws DALException This methods throws a DALException.
-     */
-    @Override
-    public IRawMaterialDTO getRawMaterialInRecipe(int rawMaterial_ID) throws DALException {
-
-        IRawMaterialDTO rawMaterialDTOToReturn = new RawMaterialDTO();
-
-        Connection c = iConnPool.getConn();
-
-        String getRawMaterial_recipeQuery = String.format("SELECT * FROM %s WHERE %s = ?",
-                TABLE_NAME+"_recipe",rm_recipColumns.rawMaterial_id);
-
-        try {
-            rawMaterialDTOToReturn = getRawMaterial(rawMaterial_ID);
-
-            PreparedStatement rm_recipePS = c.prepareStatement(getRawMaterial_recipeQuery);
-            rm_recipePS.setInt(1,rawMaterial_ID);
-
-            ResultSet rs = rm_recipePS.executeQuery();
-
-            while (rs.next()) {
-                rawMaterialDTOToReturn.setUsed(true);
-                rawMaterialDTOToReturn.setRecipe_id(rs.getInt(rm_recipColumns.recipe_id.toString()));
-                rawMaterialDTOToReturn.setActive(rs.getBoolean(rm_recipColumns.active.toString()));
-                rawMaterialDTOToReturn.setAmount(rs.getDouble(rm_recipColumns.amount.toString()));
-            }
-
-        } catch (SQLException e) {
             throw new DALException(e.getMessage());
         } finally {
             iConnPool.releaseConnection(c);
@@ -187,10 +148,12 @@ public class RawMaterialDAO implements IRawMaterialDAO {
     @Override
     public List<IRawMaterialDTO> getRawMaterialList() throws DALException {
 
+        // List of IRawMaterials to return.
         List<IRawMaterialDTO> rawMaterialDTOList = new ArrayList<>();
 
         Connection c = iConnPool.getConn();
 
+        // Query getting ALL rawMaterial_id's
         String rawMaterialIDQuery = String.format("SELECT %s FROM %s",
                 columns.rawMaterial_id, TABLE_NAME);
 
@@ -198,6 +161,7 @@ public class RawMaterialDAO implements IRawMaterialDAO {
             Statement statement = c.createStatement();
             ResultSet rs = statement.executeQuery(rawMaterialIDQuery);
 
+            // Gets id, creates a RawMaterial object and adds it to List.
             while (rs.next()) {
                 int rawMaterial_ID = rs.getInt(columns.rawMaterial_id.toString());
                 rawMaterialDTOList.add(getRawMaterial(rawMaterial_ID));
@@ -208,7 +172,6 @@ public class RawMaterialDAO implements IRawMaterialDAO {
         } finally {
             iConnPool.releaseConnection(c);
         }
-
         return rawMaterialDTOList;
     }
 
@@ -228,9 +191,11 @@ public class RawMaterialDAO implements IRawMaterialDAO {
 
         IRawMaterialDTO rawMaterialDTOBeforeUpdate = getRawMaterial(rawMaterialDTO.getRawMaterialDTO_ID());
 
+        // Query for updating of rawMaterial name
         String nameUpdateQuery = String.format("UPDATE %s SET %s = ? WHERE %s = %s",
                 TABLE_NAME, columns.name, columns.rawMaterial_id, rawMaterialDTO.getRawMaterialDTO_ID());
 
+        // Query for updating of RawMaterial stdDeviation.
         String stdDeviationUpdateQuery = String.format("UPDATE %s SET %s = ? WHERE %s = %s",
                 TABLE_NAME, columns.stdDeviation, columns.rawMaterial_id, rawMaterialDTO.getRawMaterialDTO_ID());
 
@@ -240,19 +205,23 @@ public class RawMaterialDAO implements IRawMaterialDAO {
             PreparedStatement namePS = c.prepareStatement(nameUpdateQuery);
             PreparedStatement stdDeviationPS = c.prepareStatement(stdDeviationUpdateQuery);
 
+            // region Updates Raw Material Name.
             if (!rawMaterialDTO.getName().equals(rawMaterialDTOBeforeUpdate.getName())){
                 namePS.setString(1, rawMaterialDTO.getName());
 
                 namePS.executeUpdate();
                 variableChanges++;
             }
+            // endregion
 
+            // region Updates Raw Material stdDeviation
             if (rawMaterialDTO.getStdDeviation() != rawMaterialDTOBeforeUpdate.getStdDeviation()) {
                 stdDeviationPS.setDouble(1, rawMaterialDTO.getStdDeviation());
 
                 stdDeviationPS.executeUpdate();
                 variableChanges++;
             }
+            // endregion
 
             c.commit();
 
@@ -268,6 +237,4 @@ public class RawMaterialDAO implements IRawMaterialDAO {
     /*
     ---------------------- Support Methods ----------------------
      */
-
-
 }

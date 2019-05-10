@@ -267,7 +267,7 @@ public class RecipeDAO implements IRecipeDAO {
 
             ResultSet rmRS = rawMaterialUsedPS.executeQuery();
 
-            // TODO: måske burde det her kunne klares med RawMaterialDAO?
+            // TODO: måske burde det her kunne første del klares med RawMaterialDAO, men gider vi pass den ind??
             while (rmRS.next()) {
                 IRawMaterialDTO rmUsed = new RawMaterialDTO();
                 rmUsed.setRecipe_id(recipeID);
