@@ -3,7 +3,7 @@ package dto.rawMaterialBatch;
 /**
  * @author Rasmus Sander Larsen
  */
-public class RawMaterialBatchDTO {
+public class RawMaterialBatchDTO implements IRawMaterialBatchDTO{
 
     /*
     -------------------------- Fields --------------------------
