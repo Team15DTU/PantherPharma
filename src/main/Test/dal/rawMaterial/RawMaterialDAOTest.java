@@ -43,7 +43,7 @@ public class RawMaterialDAOTest {
         RawMaterialDTO test = (RawMaterialDTO) dao.getRawMaterial(1);
         assertEquals("Æbler",test.getName());
     }
-    
+
 
     @Test
     public void getRawMaterialList() throws DALException {
@@ -54,9 +54,6 @@ public class RawMaterialDAOTest {
         assertEquals("Æbler",test.get(0).getName());
         assertEquals("Bananer", test.get(1).getName());
         assertEquals("Sukker", test.get(2).getName());
-
-
-
     }
 
     @Test
@@ -70,9 +67,5 @@ public class RawMaterialDAOTest {
         dao.updateRawMaterial(test2);
 
         assertEquals("Sukker",dao.getRawMaterial(3).getName());
-
-
-
-
     }
 }
