@@ -1,6 +1,8 @@
 package dal.productBatch;
 
+import dal.ConnectionHelper;
 import dal.DALException;
+import db.IConnPool;
 import dto.productBatch.IProductBatchDTO;
 
 import java.util.List;
@@ -16,13 +18,19 @@ public class ProductBatchDAO implements IProductBatchDAO {
     /*
     -------------------------- Fields --------------------------
      */
-    
+    private IConnPool iConnPool;
+    private ConnectionHelper connectionHelper;
     private final String TABLE_NAME = "productBatch";
     
     /*
     ----------------------- Constructor -------------------------
      */
-    
+
+    public ProductBatchDAO(IConnPool iConnPool){
+        this.iConnPool = iConnPool;
+        connectionHelper = new ConnectionHelper(iConnPool);
+    }
+
     
     
     /*
