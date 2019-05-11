@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * @author Rasmus Sander Larsen
  */
-public class ProductBatchDTO {
+public class ProductBatchDTO implements IProductBatchDTO {
 
     /*
     -------------------------- Fields --------------------------
