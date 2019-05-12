@@ -18,7 +18,17 @@ public class RMBDAOMain {
 
         IRawMaterialBatchDTO bananBatch1 = new RawMaterialBatchDTO(2, 200);
 
-        rawMaterialBatchDAO.createRawMaterialBatch(bananBatch1);
+        //rawMaterialBatchDAO.createRawMaterialBatch(bananBatch1);
+
+        IRawMaterialBatchDTO rmb7 = rawMaterialBatchDAO.getRawMaterialBatch(7);
+        rmb7.setResidue(false);
+        rmb7.setAmount(400);
+        System.out.println(rawMaterialBatchDAO.updateRawMaterialBatch(rmb7));
+        //System.out.println(rawMaterialBatchDAO.getRawMaterialBatch(2));
+
+        for (IRawMaterialBatchDTO rawMaterialBatchDTO : rawMaterialBatchDAO.getRawMaterialBatchList()) {
+            System.out.println(rawMaterialBatchDTO);
+        }
 
 
     }

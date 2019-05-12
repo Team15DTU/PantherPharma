@@ -45,4 +45,12 @@ public interface IRawMaterialDAO {
      */
     int updateRawMaterial (IRawMaterialDTO rawMaterialDTO) throws DALException;
 
+    /**
+     * This method gets a List Object containing all the Raw Materials that needs to be reordered.
+     * A RawMaterial needs to be reordered if the total amount of rawMaterialBatches of a certain rawMaterial,
+     * isn't enough to make 2 times the recipe using the most of that particular rawMaterial.
+     * @return a List<IRawMaterialDTO> of rawMaterials to reorder.
+     * @throws DALException This method throws a DALException.
+     */
+    List<IRawMaterialDTO> getRawMaterialsToReorderList () throws DALException;
 }

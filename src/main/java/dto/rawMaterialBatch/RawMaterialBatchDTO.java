@@ -10,7 +10,7 @@ public class RawMaterialBatchDTO implements IRawMaterialBatchDTO {
      */
     
     private int rawMaterialBatchID = -1;
-    private int rawMaterialID;
+    private int rawMaterialID ;
     private boolean isResidue = false;
     private double amount;
     
@@ -69,7 +69,18 @@ public class RawMaterialBatchDTO implements IRawMaterialBatchDTO {
     /*
     ---------------------- Public Methods -----------------------
      */
-    
+
+    public String toString () {
+        StringBuilder toStringBuilder = new StringBuilder();
+        if ( rawMaterialBatchID != -1) {
+            toStringBuilder.append("RawMaterialBatchID: " + rawMaterialBatchID + ", ");
+        }
+        toStringBuilder.append("RawMaterialID: " + rawMaterialID + ", ");
+        toStringBuilder.append("IsResidue: " + isResidue + ", ");
+        toStringBuilder.append("Amount: " + amount);
+
+        return toStringBuilder.toString();
+    }
     
     
     /*

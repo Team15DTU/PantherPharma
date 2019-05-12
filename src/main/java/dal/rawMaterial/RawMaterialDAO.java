@@ -236,24 +236,64 @@ public class RawMaterialDAO implements IRawMaterialDAO {
         return variableChanges;
     }
 
-    public List<IRawMaterialDTO> rmToReOrder () throws DALException {
+    /**
+     * This method gets a List Object containing all the Raw Materials that needs to be reordered.
+     * A RawMaterial needs to be reordered if the total amount of rawMaterialBatches of a certain rawMaterial,
+     * isn't enough to make 2 times the recipe using the most of that particular rawMaterial.
+     * @return a List<IRawMaterialDTO> of rawMaterials to reorder.
+     * @throws DALException This method throws a DALException.
+     */
+    @Override
+    public List<IRawMaterialDTO> getRawMaterialsToReorderList () throws DALException {
         // List for Raw Materials to reorder.
-        List<IRawMaterialDTO> rmToReOrder = new ArrayList<>();
+        List<IRawMaterialDTO> rmToReOrderList = new ArrayList<>();
 
         Connection c = iConnPool.getConn();
 
-        String getMaxAmountPrRMQuery = String.format("SELECT %s, MAX(%s) FROM %s GROUP BY %s" +
-                Columns.rawMaterial.rawMaterial_id, Columns.rm_recipe.amount, Tables.rawMaterial_recipe, Columns.rm_recipe.rawMaterial_id);
+        // Finds the maximum amount used in a recipe for each RawMaterial.
+        String rmMaxUse = "SELECT rmUse.rmID AS rmID, rmUse.rmName as rmName, MAX(rmUse.amount) AS maxAmount FROM " +
+                " (SELECT rawMaterial.rawMaterial_id AS rmID, rawMaterial.name AS rmName, rawMaterial_recipe.amount AS amount FROM rawMaterial" +
+                " LEFT JOIN rawMaterial_recipe" +
+                " ON rawMaterial.rawMaterial_id = rawMaterial_recipe.rawMaterial_id ) rmUse" +
+                " GROUP BY rmID";
 
+        // Joins rawMaterialBatch and rawMaterialBatch_rawMaterial, so we know that rawMaterial each RawMaterialBatch corresponds to.
+        String rmb_rm = "SELECT rawMaterialBatch.rawMaterialBatch_id AS rmbID, rawMaterialBatch_rawMaterial.rawMaterial_id AS rmID, rawMaterial.name AS name, rawMaterialBatch.amount AS rmbAmount FROM rawMaterialBatch " +
+                " LEFT JOIN rawMaterialBatch_rawMaterial" +
+                " ON rawMaterialBatch.rawMaterialBatch_id = rawMaterialBatch_rawMaterial.rawMaterialBatch_id" +
+                " LEFT JOIN rawMaterial" +
+                " ON rawMaterialBatch_rawMaterial.rawMaterial_id = rawMaterial.rawMaterial_id";
+
+        // Finds the RawMaterialBatches with an amount >= than the maximum usage in a recipe of that corresponding rawMaterial.
+        String rmb_rmAboveMax = "SELECT rmb_rm.rmID AS rmID, rmb_rm.name AS rmName, rmb_rm.rmbAmount AS rmbAmountAboveMaxUse, rmMaxUse.maxAmount AS rmMaxAmount FROM ( "+ rmb_rm +")rmb_rm" +
+                " LEFT JOIN ("+ rmMaxUse +") rmMaxUse " +
+                " ON rmMaxUse.rmID = rmb_rm.rmID" +
+                " WHERE rmb_rm.rmbAmount >= rmMaxUse.maxAmount ";
+
+        // Finds the sum of amounts of rawMaterialBatches that is >= than the maximum usage in a recipe of the correspoding rawMaterial.
+        String sumAboveMax = "SELECT rmb_rmAboveMax.rmName AS rmName, rmb_rmAboveMax.rmID AS rmID, SUM(rmb_rmAboveMax.rmbAmountAboveMaxUse) AS sumPrRm,rmb_rmAboveMax.rmMaxAmount as rmMaxAmount FROM ("+rmb_rmAboveMax +") rmb_rmAboveMax " +
+                " WHERE rmb_rmAboveMax.rmbAmountAboveMaxUse >= rmb_rmAboveMax.rmMaxAmount" +
+                " GROUP BY rmb_rmAboveMax.rmID";
+
+        // Finds the rawMaterials where the sum of corresponding RawMaterialBatches is smaller than 2*maximum usage.
+        String reOrderList = "SELECT sumAboveMax.rmName AS rmName, sumAboveMax.rmID AS rmID, sumAboveMax.sumPrRm as sumPrRm FROM (" + sumAboveMax + ") sumAboveMax" +
+                " WHERE sumAboveMax.sumPrRm < 2*sumAboveMax.rmMaxAmount";
 
         try {
-            PreparedStatement maxAmountPS = c.prepareStatement(getMaxAmountPrRMQuery);
+            PreparedStatement rawMaterialsToReOrderPS = c.prepareStatement(reOrderList);
+            ResultSet rawMaterialsToReOrderRS = rawMaterialsToReOrderPS.executeQuery();
+
+            while (rawMaterialsToReOrderRS.next()) {
+                int rawMaterial_id = rawMaterialsToReOrderRS.getInt("rmID");
+                rmToReOrderList.add(getRawMaterial(rawMaterial_id));
+            }
+
 
         } catch (SQLException e) {
             throw new DALException(e.getMessage());
         }
 
-        return rmToReOrder;
+        return rmToReOrderList;
     }
 
     /*

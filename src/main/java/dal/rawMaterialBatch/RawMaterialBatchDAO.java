@@ -6,8 +6,11 @@ import dal.DALException;
 import dal.Tables;
 import db.IConnPool;
 import dto.rawMaterialBatch.IRawMaterialBatchDTO;
+import dto.rawMaterialBatch.RawMaterialBatchDTO;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -118,7 +121,45 @@ public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
      */
     @Override
     public IRawMaterialBatchDTO getRawMaterialBatch(int rawMaterialBatchID) throws DALException {
-        return null;
+
+        IRawMaterialBatchDTO rmbToReturn = new RawMaterialBatchDTO();
+
+        Connection c = iConnPool.getConn();
+
+        String getRMBQuery = String.format("SELECT %s, %s, %s, %s FROM %s " +
+                        "LEFT JOIN %s " +
+                        "ON %s = %s " +
+                        "WHERE %s = ?",
+                Tables.rawMaterialBatch+"."+Columns.rawMaterialBatch.rawMaterialBatch_id,
+                Tables.rawMaterialBatch_rawMaterial+"."+Columns.rawMaterialBatch_rawMaterial.rawMaterial_id,
+                Tables.rawMaterialBatch+"."+Columns.rawMaterialBatch.amount,
+                Tables.rawMaterialBatch+"."+Columns.rawMaterialBatch.isResidue,
+                Tables.rawMaterialBatch, Tables.rawMaterialBatch_rawMaterial,
+                Tables.rawMaterialBatch +"." +Columns.rawMaterialBatch.rawMaterialBatch_id,
+                Tables.rawMaterialBatch_rawMaterial+"."+Columns.rawMaterialBatch_rawMaterial.rawMaterialBatch_id,
+                Tables.rawMaterialBatch+"."+Columns.rawMaterialBatch.rawMaterialBatch_id);
+
+        try {
+
+            // region Getting rawMaterialBatch info from rawMaterialBatch and rawMaterialBatch_rawMaterial table.
+            PreparedStatement getRMBPS = c.prepareStatement(getRMBQuery);
+            getRMBPS.setInt(1, rawMaterialBatchID);
+
+            ResultSet getRMBRS = getRMBPS.executeQuery();
+
+            while(getRMBRS.next()){
+                rmbToReturn.setRawMaterialBatchID(getRMBRS.getInt(Columns.rawMaterialBatch.rawMaterialBatch_id.toString()));
+                rmbToReturn.setRawMaterialID(getRMBRS.getInt(Columns.rawMaterialBatch_rawMaterial.rawMaterial_id.toString()));
+                rmbToReturn.setAmount(getRMBRS.getDouble(Columns.rawMaterialBatch.amount.toString()));
+                rmbToReturn.setResidue(getRMBRS.getBoolean(Columns.rawMaterialBatch.isResidue.toString()));
+            }
+
+        } catch (SQLException e) {
+            throw new DALException(e.getMessage());
+        } finally {
+            iConnPool.releaseConnection(c);
+        }
+        return rmbToReturn;
     }
 
     /**
@@ -129,19 +170,67 @@ public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
      */
     @Override
     public List<IRawMaterialBatchDTO> getRawMaterialBatchList() throws DALException {
-        return null;
+
+        List<IRawMaterialBatchDTO> RMBList = new ArrayList<>();
+
+        Connection c = iConnPool.getConn();
+
+        String getAllRMBIDs = String.format("SELECT %s FROM %s",
+                Columns.rawMaterialBatch_rawMaterial.rawMaterialBatch_id, Tables.rawMaterialBatch_rawMaterial);
+
+        try {
+            Statement getRMBIDsPS = c.createStatement();
+            ResultSet resultSet = getRMBIDsPS.executeQuery(getAllRMBIDs);
+
+            // Finds all RawMaterialBatchIDs and gets a RawMaterialBatch object matching that ID and adds to list.
+            while (resultSet.next()) {
+                int rmbID = resultSet.getInt(Columns.rawMaterialBatch.rawMaterialBatch_id.toString());
+                RMBList.add(getRawMaterialBatch(rmbID));
+            }
+        } catch (SQLException e) {
+            throw new DALException(e.getMessage());
+        } finally {
+            iConnPool.releaseConnection(c);
+        }
+        return RMBList;
     }
 
     /**
      * This method updates an existing raw material batch with the information in the inputted Object.
      *
      * @param rawMaterialBatchDTO contains the information that the raw material batch is updated with.
-     * @return a number corresponding to the number of recipe that is changed as a result of the update.
+     * @return a number corresponding to the number of rows that is changed as a result of the update.
      * @throws DALException This methods throws a DALException.
      */
     @Override
     public int updateRawMaterialBatch(IRawMaterialBatchDTO rawMaterialBatchDTO) throws DALException {
-        return 0;
+
+        int changesFromUpdate = 0;
+
+        Connection c = iConnPool.getConn();
+
+        String updateQuery = String.format("UPDATE %s SET %s = ?, %s = ? WHERE %s = ?",
+                Tables.rawMaterialBatch, Columns.rawMaterialBatch.isResidue, Columns.rawMaterialBatch.amount,
+                Columns.rawMaterialBatch.rawMaterialBatch_id);
+
+        try {
+            c.setAutoCommit(false);
+
+            PreparedStatement updatePS = c.prepareStatement(updateQuery);
+            updatePS.setBoolean(1,rawMaterialBatchDTO.isResidue());
+            updatePS.setDouble(2, rawMaterialBatchDTO.getAmount());
+            updatePS.setInt(3, rawMaterialBatchDTO.getRawMaterialBatchID());
+
+            changesFromUpdate=updatePS.executeUpdate();
+
+            c.commit();
+
+        } catch (SQLException e){
+            connectionHelper.catchSQLExceptionAndDoRollback(c,e,"RawMaterialBatchDAO.updateRawMaterialBatchDAO");
+        } finally {
+            connectionHelper.finallyActionsForConnection(c,"RawMaterialBatchDAO.updateRawMaterialBatchDAO");
+        }
+        return changesFromUpdate;
     }
 
     /**
@@ -191,10 +280,6 @@ public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
             while (resultSetID.next()){
                 idForMax = resultSetID.getInt(Columns.rm_recipe.rawMaterial_id.toString());
             }
-
-
-
-
 
         }catch (SQLException e){
             e.printStackTrace();

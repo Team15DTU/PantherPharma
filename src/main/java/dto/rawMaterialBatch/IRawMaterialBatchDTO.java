@@ -29,4 +29,6 @@ public interface IRawMaterialBatchDTO {
     ---------------------- Public Methods -----------------------
      */
 
+    String toString ();
+
 }
