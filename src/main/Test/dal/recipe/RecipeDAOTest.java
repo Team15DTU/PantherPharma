@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,10 +27,17 @@ public class RecipeDAOTest {
         RecipeDTO test = new RecipeDTO();
         test.setName("Pandekage");
         test.setRecipe_ID(1);
-        LocalDate dateTest = new LocalDate(2019,05,10);
-        LocalDate dateTest2 = new LocalDate(2020,05,10);
-        test.setStartDate(dateTest);
-        test.setStorageDate(dateTest2);
+
+        String str = "2019-05-10";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateTime = LocalDate.parse(str, formatter);
+
+        String str2 = "2020-05-10";
+        DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateTime2 = LocalDate.parse(str2, formatter2);
+
+        test.setStartDate(dateTime);
+        test.setStorageDate(dateTime2);
 
         dao.createRecipe(test);
         assertEquals("Pandekage",dao.getRecipe(1).getName());
@@ -52,10 +60,17 @@ public class RecipeDAOTest {
             RecipeDTO test = new RecipeDTO();
             test.setName(name);
             test.setRecipe_ID(i);
-            LocalDate dateTest = new LocalDate(2019, 05, i);
-            LocalDate dateTest2 = new LocalDate(2020, 05, i);
-            test.setStartDate(dateTest);
-            test.setStorageDate(dateTest2);
+
+            test.setRecipe_ID(1);String str = "2019-05-01";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate dateTime = LocalDate.parse(str, formatter);
+
+            String str2 = "2020-05-01";
+            DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate dateTime2 = LocalDate.parse(str2, formatter2);
+
+            test.setStartDate(dateTime);
+            test.setStorageDate(dateTime2);
 
             dao.createRecipe(test);
 
@@ -84,11 +99,15 @@ public class RecipeDAOTest {
     public void getRecipe() throws DALException {
         RecipeDTO test = new RecipeDTO();
         test.setName("Æblekage");
-        test.setRecipe_ID(1);
-        LocalDate dateTest = new LocalDate(2019, 05, 01);
-        LocalDate dateTest2 = new LocalDate(2020, 05, 01);
-        test.setStartDate(dateTest);
-        test.setStorageDate(dateTest2);
+        test.setRecipe_ID(1);String str = "2019-05-01";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateTime = LocalDate.parse(str, formatter);
+
+        String str2 = "2020-05-01";
+        DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateTime2 = LocalDate.parse(str2, formatter2);
+        test.setStartDate(dateTime);
+        test.setStorageDate(dateTime2);
 
         dao.createRecipe(test);
 
@@ -108,11 +127,15 @@ public class RecipeDAOTest {
     public void getRecipe1() throws DALException {
         RecipeDTO test = new RecipeDTO();
         test.setName("Æblekage");
-        test.setRecipe_ID(1);
-        LocalDate dateTest = new LocalDate(2019, 05, 01);
-        LocalDate dateTest2 = new LocalDate(2020, 05, 01);
-        test.setStartDate(dateTest);
-        test.setStorageDate(dateTest2);
+        test.setRecipe_ID(1);String str = "2019-05-01";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateTime = LocalDate.parse(str, formatter);
+
+        String str2 = "2020-05-01";
+        DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateTime2 = LocalDate.parse(str2, formatter2);
+        test.setStartDate(dateTime);
+        test.setStorageDate(dateTime2);
 
         dao.createRecipe(test);
 
@@ -133,17 +156,27 @@ public class RecipeDAOTest {
         RecipeDTO test = new RecipeDTO();
         test.setName("Æbletærte");
         test.setRecipe_ID(1);
-        LocalDate dateTest = new LocalDate(2019, 05, 01);
-        LocalDate dateTest2 = new LocalDate(2020, 05, 01);
-        test.setStartDate(dateTest);
-        test.setStorageDate(dateTest2);
+
+        test.setRecipe_ID(1);String str = "2019-05-01";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateTime = LocalDate.parse(str, formatter);
+
+        String str2 = "2020-05-01";
+        DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateTime2 = LocalDate.parse(str2, formatter2);
+
+        test.setStartDate(dateTime);
+        test.setStorageDate(dateTime2);
 
         dao.createRecipe(test);
 
-        LocalDate dateTest3 = new LocalDate(2019,9,1);
+
+        String str3 = "2019-09-01";
+        DateTimeFormatter formatter3 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateTime3 = LocalDate.parse(str3, formatter3);
 
 
-        assertEquals(1,dao.getRecipe("Æbletærte",dateTest3).getRecipe_ID());
+        assertEquals(1,dao.getRecipe("Æbletærte",dateTime3).getRecipe_ID());
 
         try (Connection c = iConnPool.getConn()){
             String secureState2 = "DELETE FROM recipe WHERE recipe_id = 1";
@@ -160,10 +193,17 @@ public class RecipeDAOTest {
         RecipeDTO test = new RecipeDTO();
         test.setName("Æbletærte");
         test.setRecipe_ID(1);
-        LocalDate dateTest = new LocalDate(2019, 05, 01);
-        LocalDate dateTest2 = new LocalDate(2020, 05, 01);
-        test.setStartDate(dateTest);
-        test.setStorageDate(dateTest2);
+
+        test.setRecipe_ID(1);String str = "2019-05-01";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateTime = LocalDate.parse(str, formatter);
+
+        String str2 = "2020-05-01";
+        DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateTime2 = LocalDate.parse(str2, formatter2);
+
+        test.setStartDate(dateTime);
+        test.setStorageDate(dateTime2);
 
         dao.createRecipe(test);
         assertEquals("Æbletærte",dao.getRecipe(1).getName());

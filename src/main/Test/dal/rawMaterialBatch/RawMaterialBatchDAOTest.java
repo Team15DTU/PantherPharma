@@ -30,7 +30,7 @@ public class RawMaterialBatchDAOTest {
 
         dao.createRawMaterialBatch(test);
 
-        assertEquals(3,dao.getRawMaterialBatch(1).getAmount());
+        assertEquals(false,dao.getRawMaterialBatch(1).isResidue());
 
         try (Connection c = iConnPool.getConn()){
             String secureState2 = "DELETE FROM rawMaterialBatch WHERE rawMaterialBatch_id = 1";
@@ -52,7 +52,7 @@ public class RawMaterialBatchDAOTest {
 
         dao.createRawMaterialBatch(test);
 
-        assertEquals(5,dao.getRawMaterialBatch(1).getAmount());
+        assertEquals(1,dao.getRawMaterialBatch(1).getRawMaterialBatchID());
 
         try (Connection c = iConnPool.getConn()){
             String secureState2 = "DELETE FROM rawMaterialBatch WHERE rawMaterialBatch_id = 1";
@@ -104,11 +104,11 @@ public class RawMaterialBatchDAOTest {
         test.setAmount(5);
         dao.createRawMaterialBatch(test);
 
-        assertEquals(5,dao.getRawMaterialBatch(1).getAmount());
+        assertEquals(false,dao.getRawMaterialBatch(1).isResidue());
 
-        test.setAmount(10);
+        test.setResidue(true);
 
-        assertEquals(10, dao.getRawMaterialBatch(1).getAmount());
+        assertEquals(true, dao.getRawMaterialBatch(1).isResidue());
 
     }
 }

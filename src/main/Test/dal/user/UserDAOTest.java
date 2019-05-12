@@ -21,19 +21,41 @@ public class UserDAOTest {
 
     @Test
     public void createUser() throws DALException {
+        IUserDTO testUser = new UserDTO();
+        testUser.setUserID(1);
+        testUser.setName("jens jensen");
+        testUser.setAdmin(false);
+        testUser.setUserName("GingerBob");
+        testUser.setPassword("HelloWorld");
+        testUser.setUserRole(UserRoleEnum.farmaceut);
+        dao.createUser(testUser);
 
+        assertEquals("jens jensen", dao.getUser(1).getName());
+
+        dao.deleteUser(1);
     }
 
     @Test
     public void getUser() throws DALException {
-        assertEquals("Rasmus Larsen",dao.getUser(1).getName());
+        IUserDTO testUser = new UserDTO();
+        testUser.setUserID(2);
+        testUser.setName("jens jensen");
+        testUser.setAdmin(false);
+        testUser.setUserName("GingerBob2");
+        testUser.setPassword("HelloWorld");
+        testUser.setUserRole(UserRoleEnum.farmaceut);
+        dao.createUser(testUser);
+
+        assertEquals("jens jensen", dao.getUser(2).getName());
+
+        dao.deleteUser(2);
     }
 
     @Test
     public void getUserList() throws DALException {
         List<IUserDTO> testList = new ArrayList<>();
         testList = dao.getUserList();
-        assertEquals("megakongen",testList.get(0).getUserName());
+        assertEquals("GingerBob",testList.get(0).getUserName());
     }
 
     @Test
@@ -49,12 +71,18 @@ public class UserDAOTest {
     public void updateUser() throws DALException {
 
         UserDTO user = new UserDTO("Test", false,"megakongen","igætterdetaldrig");
-        user.setUserID(1);
+        user.setUserID(10);
+        user.setUserRole(UserRoleEnum.laborant);
+        dao.createUser(user);
+
+        assertEquals("Test",dao.getUser(10).getName());
+
+        user.setName("Peter");
         dao.updateUser(user);
-        assertEquals("Test",dao.getUser(1).getName());
-        user.setName("Rasmus Larsen");
-        dao.updateUser(user);
-        assertEquals("Rasmus Larsen", dao.getUser(1).getName());
+
+        assertEquals("Peter", dao.getUser(10).getName());
+
+        dao.deleteUser(10);
     }
 
     @Test
