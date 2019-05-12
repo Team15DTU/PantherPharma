@@ -67,6 +67,31 @@ public class MultiTool {
 
     }
 
+    public int getNewAutoIncreasedValueInTable (String tableName) throws DALException {
+
+        int nextID =-1;
+        Connection c = iConnPool.getConn();
+
+        String getNextAutoIncreasedValueQuery =
+                "SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = 's185082' AND TABLE_NAME = '"+ tableName + "'";
+
+        try {
+            Statement statement = c.createStatement();
+            statement.executeQuery("ANALYZE TABLE " + tableName);
+            ResultSet resultSet = statement.executeQuery(getNextAutoIncreasedValueQuery);
+            while (resultSet.next()) {
+                nextID=resultSet.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            throw new DALException(e.getMessage());
+        } finally {
+            iConnPool.releaseConnection(c);
+        }
+
+return nextID;
+    }
+
     public void executeQuery (String query) throws DALException {
         Connection c = iConnPool.getConn();
 

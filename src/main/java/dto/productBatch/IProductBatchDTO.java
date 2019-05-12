@@ -9,9 +9,7 @@ import java.util.List;
  */
 public interface IProductBatchDTO {
 
-    /*
-    ---------------------- Public Methods -----------------------
-     */
+    // region Getters and Setter
 
     int getProductBatchID();
 

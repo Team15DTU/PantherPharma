@@ -1,12 +1,9 @@
 import dal.DALException;
 import dal.multitool.MultiTool;
-import dal.rawMaterialBatch.IRawMaterialBatchDAO;
-import dal.rawMaterialBatch.RawMaterialBatchDAO;
 import dal.user.IUserDAO;
 import dal.user.UserDAO;
 import db.IConnPool;
 import db.MySQL_DB;
-import dto.rawMaterialBatch.IRawMaterialBatchDTO;
 import dto.user.IUserDTO;
 import dto.user.UserDTO;
 import dto.user.UserRoleEnum;
@@ -20,67 +17,69 @@ public class UserDAOTestMain {
 
     public static void main(String[] args) throws DALException {
 
+        // MAIN FOR IUserDAO.
+        // HERE WE WILL SHOWCASE THE IMPLEMENTED FUNCTIONS!
+
+        System.out.println("Main For IUserDAO: \n");
+
+        // region ConnPoll and DAO
         // This is the MySQL DB that the program is running on.
         IConnPool iConnPool = new MySQL_DB();
 
         // UserDAO
-        //IUserDAO userDAO = new UserDAO(iConnPool);
+        IUserDAO userDAO = new UserDAO(iConnPool);
 
-        RawMaterialBatchDAO rawMaterialBatchDAO = new RawMaterialBatchDAO(iConnPool);
-
-        rawMaterialBatchDAO.orderRawMaterial();
-
-        /*
-        // User
-        IUserDTO userDTO = new UserDTO("Rasmus Larsen", false, "kongen7", "igætterdetaldrig");
-        IUserDTO userDTOUpdated = new UserDTO("Nicolaj Wassmann3", true, "megakongen2", "igætterdetaldrig");
-        userDTO.setUserRole(UserRoleEnum.farmaceut);
-
-        //userDAO.createUser(userDTO);
-
-        // 29 Far
-        IUserDTO user19 = userDAO.getUser(26);
-        System.out.println(user19);
-        //user19.setUserRole(UserRoleEnum.produktionsleder);
-        //userDAO.updateUser(user19);
-        */
-
-        // Create user in DB
-        //userDAO.createUser(userDTO);
-
-
-        /*
-        System.out.println("Getted User: ");
-        System.out.println(userDAO.getUser(5));
-
+        // MultiTool
         MultiTool multiTool = new MultiTool(iConnPool);
-        //multiTool.printResultOfQuery("DESC farmaceut");
-        //multiTool.printResultOfQuery("SHOW TABLES");
-        multiTool.printResultOfQuery("SELECT * FROM user");
+        int nextID = multiTool.getNewAutoIncreasedValueInTable("user");
 
-        List<IUserDTO> userList = userDAO.getUserList();
-        System.out.println("Users in list");
-        for (IUserDTO user : userList) {
+        // endregion
+
+        // Creates a IUserDTO object and with predefined values and creates it in the DB.
+        IUserDTO userDTO = new UserDTO("New User FirstName LastName", false, "user" + nextID, "password");
+        userDTO.setUserRole(UserRoleEnum.farmaceut);
+        System.out.println("Status for creation of UserDTO: " + userDAO.createUser(userDTO));
+
+        // Gets a existing user from the DB.
+        System.out.println("\nGetted UserDTO with ID = 24: ");
+        IUserDTO user24 = userDAO.getUser(24);
+        // User is printed.
+        System.out.println(user24);
+
+        // Variables of user24 is changed
+        user24.setName("FirstName LastName // CHANGED");
+        user24.setPassword("Password // CHANGED");
+        user24.setAdmin(true);
+        user24.setUserName("User26 // CHANGED");
+
+        // DB is updated with users new information
+        System.out.println("Number of values changed as a result of the update: " + userDAO.updateUser(user24));
+
+        // Printed the updated User
+        System.out.println("\nGetted UserDTO with ID = 24 (AFTER UPDATE): ");
+        System.out.println(userDAO.getUser(24));
+
+        System.out.println("\nUsers in list");
+        for (IUserDTO user : userDAO.getUserList()) {
             System.out.println(user);
         }
 
+        System.out.println("\nUsers in list of role \"farmaceut\": ");
+        for (IUserDTO user : userDAO.getUserByRoleList(UserRoleEnum.farmaceut)) {
+            System.out.println(user);
+        }
 
-        userDTOUpdated.setUserID(15);
-        userDTOUpdated.setUserRole(UserRoleEnum.laborant);
-        System.out.println("before:");
-        System.out.println(userDAO.getUser(15));
+        // region Sets Values back to "normal"
+        user24.setName("FirstName LastName");
+        user24.setPassword("Password");
+        user24.setAdmin(false);
+        user24.setUserName("User24");
+        userDAO.updateUser(user24);
 
-        IUserDTO user14 = userDAO.getUser(14);
-        user14.setUserRole(UserRoleEnum.farmaceut);
+        // Deletes newly created User.
+        userDAO.deleteUser(nextID);
 
-        userDTOUpdated.setUserRole(UserRoleEnum.farmaceut);
-        int changes = userDAO.updateUser(user14);
-        System.out.println("after:");
-        System.out.println(userDAO.getUser(15));
-        System.out.println(changes);
-
-        */
-
+        // endregion
     }
 
 }

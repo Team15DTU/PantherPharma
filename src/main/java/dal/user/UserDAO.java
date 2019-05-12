@@ -1,6 +1,7 @@
 package dal.user;
 
 import dal.Columns;
+import dal.ConnectionHelper;
 import dal.DALException;
 import dal.Tables;
 import db.IConnPool;
@@ -26,6 +27,7 @@ public class UserDAO implements IUserDAO {
      */
     
     private IConnPool iConnPool;
+    private ConnectionHelper connectionHelper;
     private final String TABLE_NAME = "user";
 
     
@@ -36,6 +38,7 @@ public class UserDAO implements IUserDAO {
     public UserDAO (IConnPool iConnPool) {
 
         this.iConnPool = iConnPool;
+        connectionHelper = new ConnectionHelper(iConnPool);
 
     }
     
@@ -65,7 +68,7 @@ public class UserDAO implements IUserDAO {
         Connection c = iConnPool.getConn();
 
         String insertQuery = String.format("INSERT INTO %s (%s, %s, %s, %s, %s) VALUES (?,?,?,?,?)",
-                TABLE_NAME, columns.user_id, columns.name, columns.isAdmin, columns.userName, columns.password);
+                Tables.user, Columns.user.user_id, Columns.user.name, Columns.user.isAdmin, Columns.user.userName, Columns.user.password);
 
         String roleQuery = String.format("INSERT INTO %s (%s) VALUES (?)",
                 userDTO.getUserRole().toString(), userDTO.getUserRole().toString().concat("_id"));
@@ -108,10 +111,10 @@ public class UserDAO implements IUserDAO {
             return true;
 
         } catch (SQLException e) {
-            catchSQLExceptionAndDoRollback(c, e, "UserDAO.createUser");
+            connectionHelper.catchSQLExceptionAndDoRollback(c, e, "UserDAO.createUser");
             return false;
         } finally {
-            finallyActionsForConnection(c, "UserDAO.createUser");
+            connectionHelper.finallyActionsForConnection(c, "UserDAO.createUser");
         }
     }
 
@@ -132,7 +135,7 @@ public class UserDAO implements IUserDAO {
 
         // Get query
         String getQuery = String.format("SELECT * FROM %s WHERE %s = ?",
-                TABLE_NAME, columns.user_id);
+                Tables.user, Columns.user.user_id);
 
         String getLaborantId = String.format("SELECT %s FROM %s WHERE %s = ?",
                 Columns.laborant.laborant_id, Tables.laborant, Columns.laborant.laborant_id);
@@ -153,11 +156,11 @@ public class UserDAO implements IUserDAO {
 
             // Sets User with information from DB.
             while (rs.next()) {
-                userDTOToReturn.setUserID(rs.getInt(columns.user_id.toString()));
-                userDTOToReturn.setName(rs.getString(columns.name.toString()));
-                userDTOToReturn.setUserName(rs.getString(columns.userName.toString()));
-                userDTOToReturn.setAdmin(rs.getBoolean(columns.isAdmin.toString()));
-                userDTOToReturn.setPassword(rs.getString(columns.password.toString()));
+                userDTOToReturn.setUserID(rs.getInt(Columns.user.user_id.toString()));
+                userDTOToReturn.setName(rs.getString(Columns.user.name.toString()));
+                userDTOToReturn.setUserName(rs.getString(Columns.user.userName.toString()));
+                userDTOToReturn.setAdmin(rs.getBoolean(Columns.user.isAdmin.toString()));
+                userDTOToReturn.setPassword(rs.getString(Columns.user.password.toString()));
             }
             // endregion
 
@@ -214,7 +217,7 @@ public class UserDAO implements IUserDAO {
         Connection c = iConnPool.getConn();
 
         String userIDQuery = String.format("SELECT %s FROM %s",
-                columns.user_id,TABLE_NAME);
+                Columns.user.user_id,Tables.user);
 
         try {
             Statement statement = c.createStatement();
@@ -223,7 +226,7 @@ public class UserDAO implements IUserDAO {
             // Goes through all userIDs and gets a IUserDTO object which is added to the list.
             while (rs.next()) {
 
-                int userID = rs.getInt(columns.user_id.toString());
+                int userID = rs.getInt(Columns.user.user_id.toString());
                 // Gets and adds IUserDTO object.
                 userDTOListToReturn.add(getUser(userID));
             }
@@ -291,19 +294,18 @@ public class UserDAO implements IUserDAO {
         Connection c = iConnPool.getConn();
 
         IUserDTO userDTOBeforeUpdate = getUser(userDTO.getUserID());
-        userDTOBeforeUpdate.setUserRole(UserRoleEnum.produktionsleder);
 
         String updateNameQuery = String.format("UPDATE %s SET %s = ? WHERE %s = ?",
-                TABLE_NAME,columns.name, columns.user_id);
+                Tables.user,Columns.user.name, Columns.user.user_id);
 
         String updateUserNameQuery = String.format("UPDATE %s SET %s = ? WHERE %s = ?",
-                        TABLE_NAME,columns.userName, columns.user_id);
+                        Tables.user,Columns.user.userName, Columns.user.user_id);
 
         String updatePasswordQuery = String.format("UPDATE %s SET %s = ? WHERE %s = ?",
-                TABLE_NAME,columns.userName, columns.user_id);
+                Tables.user,Columns.user.password, Columns.user.user_id);
 
         String updateIsAdminQuery = String.format("UPDATE %s SET %s = ? WHERE %s = ?",
-                TABLE_NAME,columns.isAdmin, columns.user_id);
+                Tables.user, Columns.user.isAdmin, Columns.user.user_id);
 
         String insertRoleQuery = String.format("INSERT INTO %s (%s) VALUES (?)",
                 userDTO.getUserRole(),userDTO.getUserRole()+"_id");
@@ -372,9 +374,9 @@ public class UserDAO implements IUserDAO {
             c.commit();
 
         } catch (SQLException e) {
-            catchSQLExceptionAndDoRollback(c, e, "UserDAO.updateUser");
+            connectionHelper.catchSQLExceptionAndDoRollback(c, e, "UserDAO.updateUser");
         } finally {
-            finallyActionsForConnection(c, "UserDAO.updateUser");
+            connectionHelper.finallyActionsForConnection(c, "UserDAO.updateUser");
         }
 
         return variablesChanged;
@@ -389,35 +391,33 @@ public class UserDAO implements IUserDAO {
      */
     @Override
     public boolean deleteUser(int userID) throws DALException {
+
+        Connection c = iConnPool.getConn();
+
+        String deleteUserQuery = String.format("DELETE FROM %s WHERE %s = ?",
+                Tables.user, Columns.user.user_id);
+
+        try {
+            c.setAutoCommit(false);
+
+            PreparedStatement deletePS = c.prepareStatement(deleteUserQuery);
+            deletePS.setInt(1,userID);
+
+            deletePS.executeUpdate();
+
+            c.commit();
+        } catch (SQLException e) {
+                connectionHelper.catchSQLExceptionAndDoRollback(c,e, "UserDAO.deleteUser");
+        } finally {
+            connectionHelper.finallyActionsForConnection(c,"UserDAO.deleteUser");
+        }
+
         return false;
     }
 
     /*
     ---------------------- Support Methods ----------------------
      */
-
-    private void finallyActionsForConnection (Connection c, String methodName) throws DALException {
-        try {
-            c.setAutoCommit(true);
-        } catch (SQLException e) {
-            System.out.println("SQLException in finally in "+ methodName + " :");
-            e.printStackTrace();
-        }
-        iConnPool.releaseConnection(c);
-    }
-
-    private void catchSQLExceptionAndDoRollback (Connection c, SQLException e, String methodName) throws DALException {
-        try {
-            System.err.println("Transaction is being rolled back. ");
-            c.rollback();
-        } catch (SQLException rollbackSQLException) {
-            System.out.println("Rollback SQLException in " + methodName + " :");
-            e.printStackTrace();
-        }
-
-        System.out.println("Standard SQLException in " + methodName + ":");
-        throw  new DALException(e.getMessage());
-    }
 
     private void setAndExecuteUpdatePreparedStatement (PreparedStatement ps, String variable,  int userID) throws SQLException {
         ps.setString(1, variable);

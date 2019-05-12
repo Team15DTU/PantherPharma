@@ -28,6 +28,11 @@ public class ProductBatchDTO implements IProductBatchDTO {
     public ProductBatchDTO(){
 
     }
+    public ProductBatchDTO(int recipeID, int amount){
+        this.recipeID = recipeID;
+        this.amount = amount;
+        status = ProductBatchStatus_Enum.ordred;
+    }
 
     public ProductBatchDTO(int recipeID, int amount, ProductBatchStatus_Enum status){
         this.recipeID = recipeID;
@@ -48,9 +53,6 @@ public class ProductBatchDTO implements IProductBatchDTO {
      */
 
     // <editor-folder desc="Properties"
-
-
-    // </editor-folder>
 
     public int getProductBatchID() {
         return productBatchID;
@@ -93,7 +95,8 @@ public class ProductBatchDTO implements IProductBatchDTO {
     }
 
 
-    
+    // </editor-folder>
+
     /*
     ---------------------- Public Methods -----------------------
      */

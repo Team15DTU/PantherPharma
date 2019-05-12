@@ -24,7 +24,7 @@ public interface IRawMaterialBatchDTO {
     void setAmount(double amount);
 
     // endregion
-    
+
     /*
     ---------------------- Public Methods -----------------------
      */
