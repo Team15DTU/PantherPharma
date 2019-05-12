@@ -30,11 +30,17 @@ public class ProductBatchDAOTestMain {
         // endregion
 
         // Creates a productBatchDTO with a recipe_id of a existing recipe and a amount on 1000.
-        IProductBatchDTO productBatchDTO = new ProductBatchDTO(23,1000);
+        IProductBatchDTO banankageBatch = new ProductBatchDTO(23,1000);
 
         // Create productBatch in DB and prints result.
-        System.out.println("Status of creation of productBatch: " +productBatchDAO.createProductBatch(productBatchDTO));
+        System.out.println("Status of creation of productBatch: " +productBatchDAO.createProductBatch(banankageBatch));
 
 
+
+        // List of all productBatches in DB.
+        System.out.println("ProductBatches from List :");
+        for (IProductBatchDTO productBatchDTO : productBatchDAO.getProductBatchList()) {
+            System.out.println(productBatchDTO);
+        }
     }
 }

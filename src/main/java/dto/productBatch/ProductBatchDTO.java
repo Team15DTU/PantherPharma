@@ -4,6 +4,7 @@ import dto.rawMaterial.IRawMaterialDTO;
 import dto.rawMaterialBatch.IRawMaterialBatchDTO;
 import dto.rawMaterialBatch.RawMaterialBatchDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,17 +28,21 @@ public class ProductBatchDTO implements IProductBatchDTO {
     
     public ProductBatchDTO(){
 
+        usedRawMaterialBatches = new ArrayList<>();
+
     }
     public ProductBatchDTO(int recipeID, int amount){
         this.recipeID = recipeID;
         this.amount = amount;
         status = ProductBatchStatus_Enum.ordred;
+        usedRawMaterialBatches = new ArrayList<>();
     }
 
     public ProductBatchDTO(int recipeID, int amount, ProductBatchStatus_Enum status){
         this.recipeID = recipeID;
         this.amount = amount;
         this.status = status;
+        usedRawMaterialBatches = new ArrayList<>();
     }
 
     public ProductBatchDTO(int productBatchID, int recipeID, int amount, ProductBatchStatus_Enum status){
@@ -45,6 +50,7 @@ public class ProductBatchDTO implements IProductBatchDTO {
         this.recipeID = recipeID;
         this.amount = amount;
         this.status = status;
+        usedRawMaterialBatches = new ArrayList<>();
     }
 
 
@@ -104,12 +110,12 @@ public class ProductBatchDTO implements IProductBatchDTO {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         if (productBatchID!=-1){
-            stringBuilder.append("ProductBatchID: " + productBatchID);
+            stringBuilder.append("ProductBatchID: " + productBatchID + ", ");
         }
         if (recipeID!=-1){
-            stringBuilder.append("RecipeID: " + recipeID);
+            stringBuilder.append("RecipeID: " + recipeID + ", ");
         }
-        stringBuilder.append("Amount: " + amount);
+        stringBuilder.append("Amount: " + amount + ", ");
         if (usedRawMaterialBatches.size() >= 1) {
             stringBuilder.append(" // ALL RawMaterialsBatches Used In This Recipe: ");
             for (IRawMaterialBatchDTO rawMaterialBatchDTO : usedRawMaterialBatches) {
