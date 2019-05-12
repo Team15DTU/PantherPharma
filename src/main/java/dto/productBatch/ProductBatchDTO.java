@@ -116,6 +116,7 @@ public class ProductBatchDTO implements IProductBatchDTO {
             stringBuilder.append("RecipeID: " + recipeID + ", ");
         }
         stringBuilder.append("Amount: " + amount + ", ");
+        stringBuilder.append("Status: " + status.getStatusName() + ", ");
         if (usedRawMaterialBatches.size() >= 1) {
             stringBuilder.append(" // ALL RawMaterialsBatches Used In This Recipe: ");
             for (IRawMaterialBatchDTO rawMaterialBatchDTO : usedRawMaterialBatches) {

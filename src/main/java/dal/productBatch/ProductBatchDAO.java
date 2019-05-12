@@ -204,6 +204,26 @@ public class ProductBatchDAO implements IProductBatchDAO {
      */
     @Override
     public int updateProductBatch(IProductBatchDTO productBatchDTO) throws DALException {
+
+        Connection c = iConnPool.getConn();
+
+        String updateQuery = String.format("UPDATE %s SET %s = ? WHERE %s = ?",
+                Tables.productBatch, Columns.productBatch.status_id, Columns.productBatch.productBatch_id);
+
+        try {
+            c.setAutoCommit(false);
+            PreparedStatement updatePS = c.prepareStatement(updateQuery);
+            updatePS.setInt(1,productBatchDTO.getStatus().getStatus_id());
+            updatePS.setInt(2,productBatchDTO.getProductBatchID());
+
+            updatePS.executeUpdate();
+
+            c.commit();
+        } catch (SQLException e ) {
+            connectionHelper.catchSQLExceptionAndDoRollback(c,e,"ProductBatchDAO.updateProductBatch");
+        } finally {
+            connectionHelper.finallyActionsForConnection(c,"ProductBatchDAO.updateProductBatch");
+        }
         return 0;
     }
 
