@@ -1,5 +1,6 @@
 package dto.productBatch;
 
+import dto.rawMaterialBatch.IRawMaterialBatchDTO;
 import dto.rawMaterialBatch.RawMaterialBatchDTO;
 
 import java.util.List;
@@ -23,9 +24,9 @@ public interface IProductBatchDTO {
 
     void setAmount(int amount);
 
-    List<RawMaterialBatchDTO> getUsedRawMaterialBatches();
+    List<IRawMaterialBatchDTO> getUsedRawMaterialBatches();
 
-    void setUsedRawMaterialBatches(List<RawMaterialBatchDTO> usedRawMaterialBatches);
+    void setUsedRawMaterialBatches(List<IRawMaterialBatchDTO> usedRawMaterialBatches);
 
     ProductBatchStatus_Enum getStatus();
 

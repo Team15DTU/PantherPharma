@@ -1,11 +1,9 @@
 package dal.productBatch;
 
-import dal.Columns;
-import dal.ConnectionHelper;
-import dal.DALException;
-import dal.Tables;
+import dal.*;
 import db.IConnPool;
 import dto.productBatch.IProductBatchDTO;
+import dto.productBatch.ProductBatchDTO;
 import dto.productBatch.ProductBatchStatus_Enum;
 
 import java.sql.*;
@@ -56,6 +54,8 @@ public class ProductBatchDAO implements IProductBatchDAO {
     @Override
     public boolean createProductBatch(IProductBatchDTO productBatchDTO) throws DALException {
 
+        int assigned_id = -1;
+
         Connection c = iConnPool.getConn();
 
         // Query of insertion of  information into productBatch
@@ -70,7 +70,7 @@ public class ProductBatchDAO implements IProductBatchDAO {
             c.setAutoCommit(false);
 
             // region Creation of productBatch
-            PreparedStatement insertPS = c.prepareStatement(insertQuery);
+            PreparedStatement insertPS = c.prepareStatement(insertQuery,Statement.RETURN_GENERATED_KEYS);
             // amount
             insertPS.setDouble(1,productBatchDTO.getAmount());
             // status_id
@@ -78,22 +78,33 @@ public class ProductBatchDAO implements IProductBatchDAO {
             insertPS.executeUpdate();
             // endregion
 
+            // region Get assigned ID
+
+            ResultSet generatedKeys = insertPS.getGeneratedKeys();
+
+            while (generatedKeys.next()) {
+                assigned_id = generatedKeys.getInt(1);
+            }
+
+            // endregion
+
             // region Creation of Connection table between ProductBatch and Recipe.
             PreparedStatement connectionPS = c.prepareStatement(connectionQuery);
             // productBatch_id
-            connectionPS.setInt(1,productBatchDTO.getProductBatchID());
+            connectionPS.setInt(1,assigned_id);
             // recipe_id
             connectionPS.setInt(2,productBatchDTO.getRecipeID());
             connectionPS.executeUpdate();
             // endregion
 
             c.commit();
+            return true;
         } catch (SQLException e) {
             connectionHelper.catchSQLExceptionAndDoRollback(c,e, "ProductBatchDAO.createProductBatch");
+            return false;
         }finally {
             connectionHelper.finallyActionsForConnection(c,"ProductBatchDAO.createProductBatch");
         }
-        return false;
     }
 
     /**
@@ -106,8 +117,49 @@ public class ProductBatchDAO implements IProductBatchDAO {
     @Override
     public IProductBatchDTO getProductBatch(int productBatchID) throws DALException {
 
+        IProductBatchDTO productBatchDTO = new ProductBatchDTO();
 
-        return null;
+        Connection c = iConnPool.getConn();
+
+        String getQuery = String.format("SELECT %s AS %s,%s AS %s,%s AS %s,%s AS %s FROM %s" +
+                        " LEFT JOIN %s" +
+                        " ON %s = %s " +
+                        " WHERE %s = ?",
+                Tables.productBatch + "." + Columns.productBatch.productBatch_id,
+                Columns.productBatch.productBatch_id,
+                Tables.productBatch + "." + Columns.productBatch.amount,
+                Columns.productBatch.amount,
+                Tables.productBatch + "." + Columns.productBatch.status_id,
+                Columns.productBatch.status_id,
+                Tables.productBatch_recipe + "." + Columns.productBatch_recipe.recipe_id,
+                Columns.productBatch_recipe.recipe_id,
+                Tables.productBatch,Tables.productBatch_recipe,
+                Tables.productBatch + "." + Columns.productBatch.productBatch_id,
+                Tables.productBatch_recipe + "." + Columns.productBatch_recipe.productBatch_id,
+                Tables.productBatch + "." +Columns.productBatch.productBatch_id);
+
+        try {
+            PreparedStatement preparedStatement = c.prepareStatement(getQuery);
+            preparedStatement.setInt(1, productBatchID);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                productBatchDTO.setProductBatchID(resultSet.getInt(Columns.productBatch.productBatch_id.toString()));
+                productBatchDTO.setRecipeID(resultSet.getInt(Columns.productBatch_recipe.recipe_id.toString()));
+                productBatchDTO.setAmount(resultSet.getInt(Columns.productBatch.amount.toString()));
+                int status_id =resultSet.getInt(Columns.productBatch.status_id.toString());
+                // turns status_id into ProductBatchStatusEnum.
+                productBatchDTO.setStatus(getPBStatusEnumFromInt(status_id));
+            }
+
+        } catch (SQLException e){
+            throw new DALException(e.getMessage());
+        } finally {
+            iConnPool.releaseConnection(c);
+        }
+
+        return productBatchDTO;
     }
 
     /**
@@ -152,6 +204,26 @@ public class ProductBatchDAO implements IProductBatchDAO {
      */
     @Override
     public int updateProductBatch(IProductBatchDTO productBatchDTO) throws DALException {
+
+        Connection c = iConnPool.getConn();
+
+        String updateQuery = String.format("UPDATE %s SET %s = ? WHERE %s = ?",
+                Tables.productBatch, Columns.productBatch.status_id, Columns.productBatch.productBatch_id);
+
+        try {
+            c.setAutoCommit(false);
+            PreparedStatement updatePS = c.prepareStatement(updateQuery);
+            updatePS.setInt(1,productBatchDTO.getStatus().getStatus_id());
+            updatePS.setInt(2,productBatchDTO.getProductBatchID());
+
+            updatePS.executeUpdate();
+
+            c.commit();
+        } catch (SQLException e ) {
+            connectionHelper.catchSQLExceptionAndDoRollback(c,e,"ProductBatchDAO.updateProductBatch");
+        } finally {
+            connectionHelper.finallyActionsForConnection(c,"ProductBatchDAO.updateProductBatch");
+        }
         return 0;
     }
 
@@ -178,6 +250,4 @@ public class ProductBatchDAO implements IProductBatchDAO {
         }
         return toReturn;
     }
-
-
 }

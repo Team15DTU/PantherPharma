@@ -4,6 +4,7 @@ import dto.rawMaterial.IRawMaterialDTO;
 import dto.rawMaterialBatch.IRawMaterialBatchDTO;
 import dto.rawMaterialBatch.RawMaterialBatchDTO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ public class ProductBatchDTO implements IProductBatchDTO {
     private int productBatchID = -1;
     private int recipeID = -1;
     private int amount;
-    private List<RawMaterialBatchDTO> usedRawMaterialBatches;
+    private List<IRawMaterialBatchDTO> usedRawMaterialBatches;
     private ProductBatchStatus_Enum status;
     
     /*
@@ -27,17 +28,21 @@ public class ProductBatchDTO implements IProductBatchDTO {
     
     public ProductBatchDTO(){
 
+        usedRawMaterialBatches = new ArrayList<>();
+
     }
     public ProductBatchDTO(int recipeID, int amount){
         this.recipeID = recipeID;
         this.amount = amount;
         status = ProductBatchStatus_Enum.ordred;
+        usedRawMaterialBatches = new ArrayList<>();
     }
 
     public ProductBatchDTO(int recipeID, int amount, ProductBatchStatus_Enum status){
         this.recipeID = recipeID;
         this.amount = amount;
         this.status = status;
+        usedRawMaterialBatches = new ArrayList<>();
     }
 
     public ProductBatchDTO(int productBatchID, int recipeID, int amount, ProductBatchStatus_Enum status){
@@ -45,6 +50,7 @@ public class ProductBatchDTO implements IProductBatchDTO {
         this.recipeID = recipeID;
         this.amount = amount;
         this.status = status;
+        usedRawMaterialBatches = new ArrayList<>();
     }
 
 
@@ -78,11 +84,11 @@ public class ProductBatchDTO implements IProductBatchDTO {
         this.amount = amount;
     }
 
-    public List<RawMaterialBatchDTO> getUsedRawMaterialBatches() {
+    public List<IRawMaterialBatchDTO> getUsedRawMaterialBatches() {
         return usedRawMaterialBatches;
     }
 
-    public void setUsedRawMaterialBatches(List<RawMaterialBatchDTO> usedRawMaterialBatches) {
+    public void setUsedRawMaterialBatches(List<IRawMaterialBatchDTO> usedRawMaterialBatches) {
         this.usedRawMaterialBatches = usedRawMaterialBatches;
     }
 
@@ -104,12 +110,13 @@ public class ProductBatchDTO implements IProductBatchDTO {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         if (productBatchID!=-1){
-            stringBuilder.append("ProductBatchID: " + productBatchID);
+            stringBuilder.append("ProductBatchID: " + productBatchID + ", ");
         }
         if (recipeID!=-1){
-            stringBuilder.append("RecipeID: " + recipeID);
+            stringBuilder.append("RecipeID: " + recipeID + ", ");
         }
-        stringBuilder.append("Amount: " + amount);
+        stringBuilder.append("Amount: " + amount + ", ");
+        stringBuilder.append("Status: " + status.getStatusName() + ", ");
         if (usedRawMaterialBatches.size() >= 1) {
             stringBuilder.append(" // ALL RawMaterialsBatches Used In This Recipe: ");
             for (IRawMaterialBatchDTO rawMaterialBatchDTO : usedRawMaterialBatches) {

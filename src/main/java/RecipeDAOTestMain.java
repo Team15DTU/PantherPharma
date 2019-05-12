@@ -25,18 +25,18 @@ public class RecipeDAOTestMain  {
 
         System.out.println("Main For IRecipeDAO: \n");
 
+        // region ConnPoll and DAO
         IConnPool iConnPool = new MySQL_DB();
 
         IRawMaterialDAO rawMaterialDAO = new RawMaterialDAO(iConnPool);
 
         IRecipeDAO recipeDAO = new RecipeDAO(iConnPool);
+        // endregion
 
         // Gets some rawMaterial object of rawMaterials that already exists in the BD
 
-        IRawMaterialDTO æbler = rawMaterialDAO.getRawMaterial(1);
         IRawMaterialDTO bananer = rawMaterialDAO.getRawMaterial(2);
         IRawMaterialDTO sukker = rawMaterialDAO.getRawMaterial(3);
-        IRawMaterialDTO pærer = rawMaterialDAO.getRawMaterial(4);
         IRawMaterialDTO mel = rawMaterialDAO.getRawMaterial(5);
 
         // The RawMaterials are assigned an amount of usage and active or inactive state
