@@ -20,7 +20,7 @@ public class RecipeDAOTestMain  {
 
     public static void main (String[] args) throws DALException {
 
-        // MAIN FOR iRECIPEDAO.
+        // MAIN FOR IRecipeDAO.
         // HERE WE WILL SHOWCASE THE IMPLEMENTED FUNCTIONS!
 
         System.out.println("Main For IRecipeDAO: \n");
@@ -59,7 +59,7 @@ public class RecipeDAOTestMain  {
         // Creation fails a the user who created the recipe wasn't a "Farmaceut".
         // Role is changed to an existing "FarmaCeut" and creation is retried.
         banankage.setCreatedBy_ID(29);
-        System.out.println("\nStatus of creation of recipe (as\"Farmaceut\"): " + recipeDAO.createRecipe(banankage));
+        System.out.println("\nStatus of creation of recipe as (\"Farmaceut\"): " + recipeDAO.createRecipe(banankage));
 
         // Next we get a recipe that is in the DB and prints it.
 
