@@ -58,6 +58,8 @@ public class RawMaterialDAO implements IRawMaterialDAO {
     @Override
     public boolean createRawMaterial(IRawMaterialDTO rawMaterialDTO) throws DALException {
 
+        boolean creationPassed = false;
+
         Connection c = iConnPool.getConn();
 
         // Query for Insertion of raw material information.
@@ -76,15 +78,19 @@ public class RawMaterialDAO implements IRawMaterialDAO {
 
             c.commit();
 
+            creationPassed = true;
+
         } catch (SQLException e) {
+
             // Prints exceptions messages and does rollback.
             connectionHelper.catchSQLExceptionAndDoRollback(c,e, "RawMaterialDAO.createRawMaterial");
+
         } finally {
             // Sets AutoCommit to true and releases connections
             connectionHelper.finallyActionsForConnection(c, "RawMaterialDAO.createRawMaterial");
         }
 
-        return false;
+        return creationPassed;
     }
 
     /**
