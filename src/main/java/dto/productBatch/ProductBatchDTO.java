@@ -18,7 +18,7 @@ public class ProductBatchDTO implements IProductBatchDTO {
     private int productBatchID = -1;
     private int recipeID = -1;
     private int amount;
-    private List<RawMaterialBatchDTO> usedRawMaterialBatches;
+    private List<IRawMaterialBatchDTO> usedRawMaterialBatches;
     private ProductBatchStatus_Enum status;
     
     /*
@@ -78,11 +78,11 @@ public class ProductBatchDTO implements IProductBatchDTO {
         this.amount = amount;
     }
 
-    public List<RawMaterialBatchDTO> getUsedRawMaterialBatches() {
+    public List<IRawMaterialBatchDTO> getUsedRawMaterialBatches() {
         return usedRawMaterialBatches;
     }
 
-    public void setUsedRawMaterialBatches(List<RawMaterialBatchDTO> usedRawMaterialBatches) {
+    public void setUsedRawMaterialBatches(List<IRawMaterialBatchDTO> usedRawMaterialBatches) {
         this.usedRawMaterialBatches = usedRawMaterialBatches;
     }
 
