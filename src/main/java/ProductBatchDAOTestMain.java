@@ -36,6 +36,5 @@ public class ProductBatchDAOTestMain {
         System.out.println("Status of creation of productBatch: " +productBatchDAO.createProductBatch(productBatchDTO));
 
 
-
     }
 }
