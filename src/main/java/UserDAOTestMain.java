@@ -17,7 +17,6 @@ public class UserDAOTestMain {
 
     public static void main(String[] args) throws DALException {
 
-
         // MAIN FOR IUserDAO.
         // HERE WE WILL SHOWCASE THE IMPLEMENTED FUNCTIONS!
 
@@ -54,7 +53,7 @@ public class UserDAOTestMain {
         user24.setUserName("User26 // CHANGED");
 
         // DB is updated with users new information
-        userDAO.updateUser(user24);
+        System.out.println("Number of values changed as a result of the update: " + userDAO.updateUser(user24));
 
         // Printed the updated User
         System.out.println("\nGetted UserDTO with ID = 24 (AFTER UPDATE): ");

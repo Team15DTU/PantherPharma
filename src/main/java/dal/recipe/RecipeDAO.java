@@ -62,6 +62,7 @@ public class RecipeDAO implements IRecipeDAO {
 
         int assignedRecipeID = -1 ;
         boolean isRecipeCreatedByValidUser = false;
+        boolean didItPass = false;
 
         Connection c = iConnPool.getConn();
 
@@ -145,6 +146,7 @@ public class RecipeDAO implements IRecipeDAO {
                 }
                 // endregion
 
+                didItPass = true;
             }
             // endregion
 
@@ -155,7 +157,8 @@ public class RecipeDAO implements IRecipeDAO {
             // endregion
 
             c.commit();
-            return true;
+            return didItPass;
+
         } catch (SQLException e) {
             connectionHelper.catchSQLExceptionAndDoRollback(c, e, "RecipeDAO.createRecipe");
             return false;
