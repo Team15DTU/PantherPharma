@@ -19,7 +19,7 @@ public class ProductBatchDAOTestMain {
 
         System.out.println("Main For IProductBatchDAO: \n");
 
-        // region
+        // region ConnPool and DAO.
 
         IConnPool iConnPool = new MySQL_DB();
 

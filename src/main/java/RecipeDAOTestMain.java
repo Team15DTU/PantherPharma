@@ -35,10 +35,8 @@ public class RecipeDAOTestMain  {
 
         // Gets some rawMaterial object of rawMaterials that already exists in the BD
 
-        IRawMaterialDTO æbler = rawMaterialDAO.getRawMaterial(1);
         IRawMaterialDTO bananer = rawMaterialDAO.getRawMaterial(2);
         IRawMaterialDTO sukker = rawMaterialDAO.getRawMaterial(3);
-        IRawMaterialDTO pærer = rawMaterialDAO.getRawMaterial(4);
         IRawMaterialDTO mel = rawMaterialDAO.getRawMaterial(5);
 
         // The RawMaterials are assigned an amount of usage and active or inactive state
