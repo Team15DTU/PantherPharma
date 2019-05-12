@@ -68,7 +68,7 @@ public class UserDAO implements IUserDAO {
         Connection c = iConnPool.getConn();
 
         String insertQuery = String.format("INSERT INTO %s (%s, %s, %s, %s, %s) VALUES (?,?,?,?,?)",
-                TABLE_NAME, columns.user_id, columns.name, columns.isAdmin, columns.userName, columns.password);
+                Tables.user, Columns.user.user_id, Columns.user.name, Columns.user.isAdmin, Columns.user.userName, Columns.user.password);
 
         String roleQuery = String.format("INSERT INTO %s (%s) VALUES (?)",
                 userDTO.getUserRole().toString(), userDTO.getUserRole().toString().concat("_id"));
@@ -135,7 +135,7 @@ public class UserDAO implements IUserDAO {
 
         // Get query
         String getQuery = String.format("SELECT * FROM %s WHERE %s = ?",
-                TABLE_NAME, columns.user_id);
+                Tables.user, Columns.user.user_id);
 
         String getLaborantId = String.format("SELECT %s FROM %s WHERE %s = ?",
                 Columns.laborant.laborant_id, Tables.laborant, Columns.laborant.laborant_id);
@@ -156,11 +156,11 @@ public class UserDAO implements IUserDAO {
 
             // Sets User with information from DB.
             while (rs.next()) {
-                userDTOToReturn.setUserID(rs.getInt(columns.user_id.toString()));
-                userDTOToReturn.setName(rs.getString(columns.name.toString()));
-                userDTOToReturn.setUserName(rs.getString(columns.userName.toString()));
-                userDTOToReturn.setAdmin(rs.getBoolean(columns.isAdmin.toString()));
-                userDTOToReturn.setPassword(rs.getString(columns.password.toString()));
+                userDTOToReturn.setUserID(rs.getInt(Columns.user.user_id.toString()));
+                userDTOToReturn.setName(rs.getString(Columns.user.name.toString()));
+                userDTOToReturn.setUserName(rs.getString(Columns.user.userName.toString()));
+                userDTOToReturn.setAdmin(rs.getBoolean(Columns.user.isAdmin.toString()));
+                userDTOToReturn.setPassword(rs.getString(Columns.user.password.toString()));
             }
             // endregion
 
@@ -217,7 +217,7 @@ public class UserDAO implements IUserDAO {
         Connection c = iConnPool.getConn();
 
         String userIDQuery = String.format("SELECT %s FROM %s",
-                columns.user_id,TABLE_NAME);
+                Columns.user.user_id,Tables.user);
 
         try {
             Statement statement = c.createStatement();
@@ -226,7 +226,7 @@ public class UserDAO implements IUserDAO {
             // Goes through all userIDs and gets a IUserDTO object which is added to the list.
             while (rs.next()) {
 
-                int userID = rs.getInt(columns.user_id.toString());
+                int userID = rs.getInt(Columns.user.user_id.toString());
                 // Gets and adds IUserDTO object.
                 userDTOListToReturn.add(getUser(userID));
             }
@@ -294,19 +294,18 @@ public class UserDAO implements IUserDAO {
         Connection c = iConnPool.getConn();
 
         IUserDTO userDTOBeforeUpdate = getUser(userDTO.getUserID());
-        userDTOBeforeUpdate.setUserRole(UserRoleEnum.produktionsleder);
 
         String updateNameQuery = String.format("UPDATE %s SET %s = ? WHERE %s = ?",
-                TABLE_NAME,columns.name, columns.user_id);
+                Tables.user,Columns.user.name, Columns.user.user_id);
 
         String updateUserNameQuery = String.format("UPDATE %s SET %s = ? WHERE %s = ?",
-                        TABLE_NAME,columns.userName, columns.user_id);
+                        Tables.user,Columns.user.userName, Columns.user.user_id);
 
         String updatePasswordQuery = String.format("UPDATE %s SET %s = ? WHERE %s = ?",
-                TABLE_NAME,columns.userName, columns.user_id);
+                Tables.user,Columns.user.password, Columns.user.user_id);
 
         String updateIsAdminQuery = String.format("UPDATE %s SET %s = ? WHERE %s = ?",
-                TABLE_NAME,columns.isAdmin, columns.user_id);
+                Tables.user, Columns.user.isAdmin, Columns.user.user_id);
 
         String insertRoleQuery = String.format("INSERT INTO %s (%s) VALUES (?)",
                 userDTO.getUserRole(),userDTO.getUserRole()+"_id");

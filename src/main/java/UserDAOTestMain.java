@@ -37,9 +37,9 @@ public class UserDAOTestMain {
         // endregion
 
         // Creates a IUserDTO object and with predefined values and creates it in the DB.
-        IUserDTO userDTO = new UserDTO("Rasmus Larsen", false, "user" + nextID, "password");
+        IUserDTO userDTO = new UserDTO("New User FirstName LastName", false, "user" + nextID, "password");
         userDTO.setUserRole(UserRoleEnum.farmaceut);
-        System.out.println("Status for creation of UserDTO :" +userDAO.createUser(userDTO));
+        System.out.println("Status for creation of UserDTO: " + userDAO.createUser(userDTO));
 
         // Gets a existing user from the DB.
         System.out.println("\nGetted UserDTO with ID = 24: ");
@@ -47,38 +47,40 @@ public class UserDAOTestMain {
         // User is printed.
         System.out.println(user24);
 
-        // Variables of user19 is changed
+        // Variables of user24 is changed
+        user24.setName("FirstName LastName // CHANGED");
+        user24.setPassword("Password // CHANGED");
+        user24.setAdmin(true);
+        user24.setUserName("User26 // CHANGED");
 
+        // DB is updated with users new information
+        userDAO.updateUser(user24);
 
+        // Printed the updated User
+        System.out.println("\nGetted UserDTO with ID = 24 (AFTER UPDATE): ");
+        System.out.println(userDAO.getUser(24));
 
-        IUserDTO userDTOUpdated = new UserDTO("Nicolaj Wassmann3", true, "megakongen2", "igætterdetaldrig");
-
-
-        // 29 Far
-        //user19.setUserRole(UserRoleEnum.produktionsleder);
-        //userDAO.updateUser(user19);
-
-
-        // Create user in DB
-        //userDAO.createUser(userDTO);
-
-
-
-        System.out.println("Getted User: ");
-        System.out.println(userDAO.getUser(5));
-
-        List<IUserDTO> userList = userDAO.getUserList();
-        System.out.println("Users in list");
-        for (IUserDTO user : userList) {
-            System.out.println(user);
-        }
-        userDAO.deleteUser(33);
-        List<IUserDTO> userList2 = userDAO.getUserList();
-        System.out.println("Users after list");
-        for (IUserDTO user : userList2) {
+        System.out.println("\nUsers in list");
+        for (IUserDTO user : userDAO.getUserList()) {
             System.out.println(user);
         }
 
+        System.out.println("\nUsers in list of role \"farmaceut\": ");
+        for (IUserDTO user : userDAO.getUserByRoleList(UserRoleEnum.farmaceut)) {
+            System.out.println(user);
+        }
+
+        // region Sets Values back to "normal"
+        user24.setName("FirstName LastName");
+        user24.setPassword("Password");
+        user24.setAdmin(false);
+        user24.setUserName("User24");
+        userDAO.updateUser(user24);
+
+        // Deletes newly created User.
+        userDAO.deleteUser(nextID);
+
+        // endregion
     }
 
 }
