@@ -5,7 +5,9 @@ package dal;
  */
 public enum Tables {
 
-    farmaceut, laborant, oldRecipe,
+    farmaceut,
+    laborant,
+    oldRecipe,
     productBatch,
     productBatch_laborant,
     productBatch_produktionsleder,

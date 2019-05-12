@@ -21,7 +21,7 @@ public class Columns {
     }
 
     // Names on columns in the DB table: rawMaterial_recipe
-    public enum rm_recipe {
+    public enum rawMaterial_recipe {
         rawMaterial_id, recipe_id, active, amount
     }
 
@@ -59,6 +59,14 @@ public class Columns {
         rawMaterialBatch_id, rawMaterial_id
     }
 
+    // Names in columns in the DB table: productBatch
+    public enum productBatch {
+        productBatch_id, status_id, amount
+    }
+
+    public enum productBatch_recipe {
+        productBatch_id, recipe_id
+    }
 
     /*
     -------------------------- Fields --------------------------

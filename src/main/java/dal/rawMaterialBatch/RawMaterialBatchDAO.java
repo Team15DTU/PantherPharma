@@ -10,7 +10,6 @@ import dto.rawMaterialBatch.RawMaterialBatchDTO;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -23,10 +22,6 @@ public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
      */
     private IConnPool iConnPool;
     private ConnectionHelper connectionHelper;
-    private final String PBTABLE_NAME = "productBatch";
-    private final String RTABLE_NAME = "recipe";
-    private final String RRTABLE_NAME = "rawMaterial_recipe";
-    private final String TABLE_NAME = "rawMaterialBatch";
     
     /*
     ----------------------- Constructor -------------------------
@@ -103,6 +98,8 @@ public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
             // endregion
 
             c.commit();
+
+            return true;
 
         } catch (SQLException e) {
             connectionHelper.catchSQLExceptionAndDoRollback(c,e,"RawMaterialBatch.createRawMaterialBatch");
@@ -231,60 +228,6 @@ public class RawMaterialBatchDAO implements IRawMaterialBatchDAO {
             connectionHelper.finallyActionsForConnection(c,"RawMaterialBatchDAO.updateRawMaterialBatchDAO");
         }
         return changesFromUpdate;
-    }
-
-    /**
-     *
-     * @throws DALException
-     */
-
-    public void orderRawMaterial() throws DALException {
-
-        String query1 = "select rawMaterial_id from rawMaterial_recipe where (select MAX(amount) from rawMaterial_recipe) = amount";
-
-        String query2 = "select rawMaterialBatch_id from rawMaterialBatch_rawMaterial " +
-                "inner join rawMaterial on rawMaterial.rawMaterial_id = rawMaterialBatch_rawMaterial.rawMaterialBatch_id";
-
-        String query3 = "select SUM(amount) from rawMaterialBatch where rawMaterialBatch_id in " +
-                "(select rawMaterialBatch_id from rawMaterialBatch_rawMaterial" +
-                " inner join rawMaterial on rawMaterial.rawMaterial_id = rawMaterialBatch_rawMaterial.rawMaterialBatch_id)";
-
-
-        Connection c = iConnPool.getConn();
-
-        double amountLeft = 0;
-        double maxAmount = 0;
-        int idForMax = 0;
-
-        String getAmountQuery = String.format("SELECT %s FROM %s" ,
-                Columns.rawMaterialBatch.amount, Tables.rawMaterialBatch);
-        String getRawMaterialAmount = String.format("SELECT * FROM %s ORDER BY %s", RRTABLE_NAME , Columns.rm_recipe.amount);
-        String getRawMaterialID = String.format("SELECT %s FROM %s ORDER BY %s", Columns.rm_recipe.rawMaterial_id, RRTABLE_NAME, Columns.rm_recipe.amount);
-
-        try{
-            PreparedStatement preparedStatementAmount = c.prepareStatement(getAmountQuery);
-            ResultSet resultSetAmount = preparedStatementAmount.executeQuery();
-
-            while (resultSetAmount.next()){
-                amountLeft = resultSetAmount.getDouble(Columns.rawMaterialBatch.amount.toString());
-            }
-
-            PreparedStatement preparedStatementrawMaterial = c.prepareStatement(getRawMaterialAmount);
-            PreparedStatement preparedStatementID = c.prepareStatement(getRawMaterialID);
-            ResultSet resultSetRaw = preparedStatementrawMaterial.executeQuery();
-            ResultSet resultSetID = preparedStatementID.executeQuery();
-
-            while (resultSetRaw.next()) {
-                maxAmount = resultSetRaw.getDouble(Columns.rm_recipe.amount.toString());
-            }
-            while (resultSetID.next()){
-                idForMax = resultSetID.getInt(Columns.rm_recipe.rawMaterial_id.toString());
-            }
-
-        }catch (SQLException e){
-            e.printStackTrace();
-        }
-
     }
 
     /*

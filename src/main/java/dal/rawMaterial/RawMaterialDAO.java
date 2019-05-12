@@ -17,17 +17,6 @@ import java.util.List;
  */
 public class RawMaterialDAO implements IRawMaterialDAO {
 
-    // Names on recipe in the DB table: rawMaterial
-    public enum columns {
-        rawMaterial_id, stdDeviation, name
-    }
-
-    // Names on recipe in the DB table: rawMaterial_recipe
-    public enum rm_recipeColumns {
-        rawMaterial_id, recipe_id, active, amount
-
-    }
-
     /*
     -------------------------- Fields --------------------------
      */
@@ -73,7 +62,7 @@ public class RawMaterialDAO implements IRawMaterialDAO {
 
         // Query for Insertion of raw material information.
         String createQuery = String.format("INSERT INTO %s (%s, %s, %s) VALUES (?,?,?)",
-                TABLE_NAME, columns.rawMaterial_id, columns.name, columns.stdDeviation);
+                Tables.rawMaterial, Columns.rawMaterial.rawMaterial_id, Columns.rawMaterial.name, Columns.rawMaterial.stdDeviation);
 
         try {
             c.setAutoCommit(false);
@@ -114,7 +103,7 @@ public class RawMaterialDAO implements IRawMaterialDAO {
 
         // Get query
         String getQuery = String.format("SELECT * FROM %s WHERE %s = ?",
-                TABLE_NAME, columns.rawMaterial_id);
+                Tables.rawMaterial, Columns.rawMaterial.rawMaterial_id);
 
         try {
             PreparedStatement pStatement = c.prepareStatement(getQuery);
@@ -124,9 +113,9 @@ public class RawMaterialDAO implements IRawMaterialDAO {
 
             // region Sets User with information from DB.
             while (rs.next()) {
-                rawMaterialDTOToReturn.setRawMaterialDTO_ID(rs.getInt(columns.rawMaterial_id.toString()));
-                rawMaterialDTOToReturn.setName(rs.getString(columns.name.toString()));
-                rawMaterialDTOToReturn.setStdDeviation(rs.getDouble(columns.stdDeviation.toString()));
+                rawMaterialDTOToReturn.setRawMaterialDTO_ID(rs.getInt(Columns.rawMaterial.rawMaterial_id.toString()));
+                rawMaterialDTOToReturn.setName(rs.getString(Columns.rawMaterial.name.toString()));
+                rawMaterialDTOToReturn.setStdDeviation(rs.getDouble(Columns.rawMaterial.stdDeviation.toString()));
                 rawMaterialDTOToReturn.setUsed(false);
             }
             // endregion
@@ -157,7 +146,7 @@ public class RawMaterialDAO implements IRawMaterialDAO {
 
         // Query getting ALL rawMaterial_id's
         String rawMaterialIDQuery = String.format("SELECT %s FROM %s",
-                columns.rawMaterial_id, TABLE_NAME);
+                Columns.rawMaterial.rawMaterial_id, Tables.rawMaterial);
 
         try {
             Statement statement = c.createStatement();
@@ -165,7 +154,7 @@ public class RawMaterialDAO implements IRawMaterialDAO {
 
             // Gets id, creates a RawMaterial object and adds it to List.
             while (rs.next()) {
-                int rawMaterial_ID = rs.getInt(columns.rawMaterial_id.toString());
+                int rawMaterial_ID = rs.getInt(Columns.rawMaterial.rawMaterial_id.toString());
                 rawMaterialDTOList.add(getRawMaterial(rawMaterial_ID));
             }
 
@@ -195,11 +184,11 @@ public class RawMaterialDAO implements IRawMaterialDAO {
 
         // Query for updating of rawMaterial name
         String nameUpdateQuery = String.format("UPDATE %s SET %s = ? WHERE %s = %s",
-                TABLE_NAME, columns.name, columns.rawMaterial_id, rawMaterialDTO.getRawMaterialDTO_ID());
+                Tables.rawMaterial, Columns.rawMaterial.name, Columns.rawMaterial.rawMaterial_id, rawMaterialDTO.getRawMaterialDTO_ID());
 
         // Query for updating of RawMaterial stdDeviation.
         String stdDeviationUpdateQuery = String.format("UPDATE %s SET %s = ? WHERE %s = %s",
-                TABLE_NAME, columns.stdDeviation, columns.rawMaterial_id, rawMaterialDTO.getRawMaterialDTO_ID());
+                Tables.rawMaterial, Columns.rawMaterial.stdDeviation, Columns.rawMaterial.rawMaterial_id, rawMaterialDTO.getRawMaterialDTO_ID());
 
         try {
             c.setAutoCommit(false);
@@ -208,7 +197,7 @@ public class RawMaterialDAO implements IRawMaterialDAO {
             PreparedStatement stdDeviationPS = c.prepareStatement(stdDeviationUpdateQuery);
 
             // region Updates Raw Material Name.
-            if (!rawMaterialDTO.getName().equals(rawMaterialDTOBeforeUpdate.getName())){
+            if (!rawMaterialDTOBeforeUpdate.getName().equals(rawMaterialDTO.getName())){
                 namePS.setString(1, rawMaterialDTO.getName());
 
                 namePS.executeUpdate();
@@ -287,7 +276,6 @@ public class RawMaterialDAO implements IRawMaterialDAO {
                 int rawMaterial_id = rawMaterialsToReOrderRS.getInt("rmID");
                 rmToReOrderList.add(getRawMaterial(rawMaterial_id));
             }
-
 
         } catch (SQLException e) {
             throw new DALException(e.getMessage());

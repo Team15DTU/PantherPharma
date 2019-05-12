@@ -1,6 +1,7 @@
 package dal.user;
 
 import dal.Columns;
+import dal.ConnectionHelper;
 import dal.DALException;
 import dal.Tables;
 import db.IConnPool;
@@ -26,6 +27,7 @@ public class UserDAO implements IUserDAO {
      */
     
     private IConnPool iConnPool;
+    private ConnectionHelper connectionHelper;
     private final String TABLE_NAME = "user";
 
     
@@ -36,6 +38,7 @@ public class UserDAO implements IUserDAO {
     public UserDAO (IConnPool iConnPool) {
 
         this.iConnPool = iConnPool;
+        connectionHelper = new ConnectionHelper(iConnPool);
 
     }
     
@@ -108,10 +111,10 @@ public class UserDAO implements IUserDAO {
             return true;
 
         } catch (SQLException e) {
-            catchSQLExceptionAndDoRollback(c, e, "UserDAO.createUser");
+            connectionHelper.catchSQLExceptionAndDoRollback(c, e, "UserDAO.createUser");
             return false;
         } finally {
-            finallyActionsForConnection(c, "UserDAO.createUser");
+            connectionHelper.finallyActionsForConnection(c, "UserDAO.createUser");
         }
     }
 
@@ -372,9 +375,9 @@ public class UserDAO implements IUserDAO {
             c.commit();
 
         } catch (SQLException e) {
-            catchSQLExceptionAndDoRollback(c, e, "UserDAO.updateUser");
+            connectionHelper.catchSQLExceptionAndDoRollback(c, e, "UserDAO.updateUser");
         } finally {
-            finallyActionsForConnection(c, "UserDAO.updateUser");
+            connectionHelper.finallyActionsForConnection(c, "UserDAO.updateUser");
         }
 
         return variablesChanged;
@@ -389,35 +392,33 @@ public class UserDAO implements IUserDAO {
      */
     @Override
     public boolean deleteUser(int userID) throws DALException {
+
+        Connection c = iConnPool.getConn();
+
+        String deleteUserQuery = String.format("DELETE FROM %s WHERE %s = ?",
+                Tables.user, Columns.user.user_id);
+
+        try {
+            c.setAutoCommit(false);
+
+            PreparedStatement deletePS = c.prepareStatement(deleteUserQuery);
+            deletePS.setInt(1,userID);
+
+            deletePS.executeUpdate();
+
+            c.commit();
+        } catch (SQLException e) {
+                connectionHelper.catchSQLExceptionAndDoRollback(c,e, "UserDAO.deleteUser");
+        } finally {
+            connectionHelper.finallyActionsForConnection(c,"UserDAO.deleteUser");
+        }
+
         return false;
     }
 
     /*
     ---------------------- Support Methods ----------------------
      */
-
-    private void finallyActionsForConnection (Connection c, String methodName) throws DALException {
-        try {
-            c.setAutoCommit(true);
-        } catch (SQLException e) {
-            System.out.println("SQLException in finally in "+ methodName + " :");
-            e.printStackTrace();
-        }
-        iConnPool.releaseConnection(c);
-    }
-
-    private void catchSQLExceptionAndDoRollback (Connection c, SQLException e, String methodName) throws DALException {
-        try {
-            System.err.println("Transaction is being rolled back. ");
-            c.rollback();
-        } catch (SQLException rollbackSQLException) {
-            System.out.println("Rollback SQLException in " + methodName + " :");
-            e.printStackTrace();
-        }
-
-        System.out.println("Standard SQLException in " + methodName + ":");
-        throw  new DALException(e.getMessage());
-    }
 
     private void setAndExecuteUpdatePreparedStatement (PreparedStatement ps, String variable,  int userID) throws SQLException {
         ps.setString(1, variable);

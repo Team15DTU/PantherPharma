@@ -20,26 +20,12 @@ import java.util.List;
  */
 public class RecipeDAO implements IRecipeDAO {
 
-    // Names on recipe in the DB table: recipe
-    public enum columns {
-        recipe_id, name, storageTime, startDate
-    }
-
-    // Names on recipe in the DB table: rawMaterial_recipe
-    public enum rm_recipeColumns {
-        rawMaterial_id, recipe_id, active, amount
-
-    }
-
     /*
     -------------------------- Fields --------------------------
      */
 
     private IConnPool iConnPool;
     private ConnectionHelper connectionHelper;
-    private final String TABLE_NAME = "recipe";
-    private final String RM_TABLE_NAME = "rawMaterial_recipe";
-    private final String OR_TABLE_NAME = "oldRecipe";
     
     /*
     ----------------------- Constructor -------------------------
@@ -89,11 +75,11 @@ public class RecipeDAO implements IRecipeDAO {
 
         // Query for insertion of recipe information.
         String createRecipeQuery = String.format("INSERT INTO %s (%s, %s, %s) VALUES (?,?,?)",
-                TABLE_NAME, columns.name, columns.storageTime, columns.startDate);
+                Tables.recipe, Columns.recipe.name, Columns.recipe.storageTime, Columns.recipe.startDate);
 
         // Query for insertion of raw materials used in recipe.
         String createUsedRawMaterials = String.format("INSERT INTO %s (%s, %s, %s, %s) VALUES (?,?,?,?)",
-                RM_TABLE_NAME, rm_recipeColumns.rawMaterial_id, rm_recipeColumns.recipe_id, rm_recipeColumns.active, rm_recipeColumns.amount);
+                Tables.rawMaterial_recipe, Columns.rawMaterial_recipe.rawMaterial_id, Columns.rawMaterial_recipe.recipe_id, Columns.rawMaterial_recipe.active, Columns.rawMaterial_recipe.amount);
 
         try {
             c.setAutoCommit(false);
@@ -195,22 +181,36 @@ public class RecipeDAO implements IRecipeDAO {
         Connection c = iConnPool.getConn();
 
         // Query to get recipe.
-        String getRecipeQuery = "SELECT recipe.recipe_id, name, storageTime, startDate, oldRecipe_id, endDate FROM recipe " +
-                " LEFT JOIN oldRecipe ON recipe.recipe_id = oldRecipe.recipe_id" +
-                " WHERE recipe.recipe_id = ?";
+        String getRecipeQuery = String.format("SELECT %s, %s, %s, %s, %s, %s FROM recipe " +
+                " LEFT JOIN %s ON %s = %s" +
+                " WHERE recipe.recipe_id = ?",
+                Tables.recipe+"."+Columns.recipe.recipe_id, Columns.recipe.name,Columns.recipe.storageTime,
+                Columns.recipe.startDate, Tables.oldRecipe +"." + Columns.oldRecipe.oldRecipe_id,
+                Tables.oldRecipe + "." + Columns.oldRecipe.endDate,
+                Tables.oldRecipe, Tables.recipe + "." + Columns.recipe.recipe_id, Tables.oldRecipe +"."+Columns.oldRecipe.recipe_id,
+                Tables.recipe + "." + Columns.recipe.recipe_id);
 
         // Query to get createdBy userID.
         String getCreatedByQuery = String.format("SELECT %s FROM %s WHERE %s = ?",
                 Columns.recipe_farmaceut.farmaceut_id, Tables.recipe_farmaceut, Columns.recipe_farmaceut.recipe_id);
 
-        // Query for getting all raw materials used in the recipe TODO: Burde det har være i RawMaterialDAO?
-        String getRawMaterialsUsedQuery = "SELECT * FROM rawMaterial" +
-                " LEFT JOIN rawMaterial_recipe ON rawMaterial.rawMaterial_id = rawMaterial_recipe.rawMaterial_id " +
-                " WHERE rawMaterial_recipe.recipe_id = ? " +
+        String getRawMaterialsUsedQuery = String.format("SELECT * FROM %s" +
+                " LEFT JOIN %s " +
+                " ON %s = %s " +
+                " WHERE %s = ? " +
                 " UNION " +
-                " SELECT * FROM rawMaterial " +
-                " RIGHT JOIN rawMaterial_recipe ON rawMaterial.rawMaterial_id = rawMaterial_recipe.rawMaterial_id" +
-                " WHERE rawMaterial_recipe.recipe_id = ?";
+                " SELECT * FROM %s " +
+                " RIGHT JOIN %s " +
+                " ON %s = %s " +
+                " WHERE %s = ?",
+                Tables.rawMaterial, Tables.rawMaterial_recipe,
+                Tables.rawMaterial + "." + Columns.rawMaterial.rawMaterial_id,
+                Tables.rawMaterial_recipe +"." +Columns.rawMaterial_recipe.rawMaterial_id,
+                Tables.rawMaterial_recipe + "." +Columns.rawMaterial_recipe.recipe_id,
+                Tables.rawMaterial, Tables.rawMaterial_recipe,
+                Tables.rawMaterial + "." + Columns.rawMaterial.rawMaterial_id,
+                Tables.rawMaterial_recipe + "." + Columns.rawMaterial_recipe.rawMaterial_id,
+                Tables.rawMaterial_recipe + "." + Columns.rawMaterial_recipe.recipe_id);
 
         try {
 
@@ -269,16 +269,15 @@ public class RecipeDAO implements IRecipeDAO {
 
             ResultSet rmRS = rawMaterialUsedPS.executeQuery();
 
-            // TODO: måske burde det her kunne første del klares med RawMaterialDAO, men gider vi pass den ind??
             while (rmRS.next()) {
                 IRawMaterialDTO rmUsed = new RawMaterialDTO();
                 rmUsed.setRecipe_id(recipeID);
-                rmUsed.setRawMaterialDTO_ID(rmRS.getInt(Columns.rm_recipe.rawMaterial_id.toString()));
+                rmUsed.setRawMaterialDTO_ID(rmRS.getInt(Columns.rawMaterial_recipe.rawMaterial_id.toString()));
                 rmUsed.setName(rmRS.getString(Columns.rawMaterial.name.toString()));
                 rmUsed.setStdDeviation(rmRS.getDouble(Columns.rawMaterial.stdDeviation.toString()));
                 rmUsed.setUsed(true);
-                rmUsed.setActive(rmRS.getBoolean(Columns.rm_recipe.active.toString()));
-                rmUsed.setAmount(rmRS.getDouble(Columns.rm_recipe.amount.toString()));
+                rmUsed.setActive(rmRS.getBoolean(Columns.rawMaterial_recipe.active.toString()));
+                rmUsed.setAmount(rmRS.getDouble(Columns.rawMaterial_recipe.amount.toString()));
                 recipeDTOToReturn.addRawMaterial(rmUsed);
             }
 
@@ -381,53 +380,37 @@ public class RecipeDAO implements IRecipeDAO {
      */
     @Override
     public IRecipeDTO getRecipe(String recipeName, LocalDate date) throws DALException {
- /*
-        Connection c = iConnPool.getConn();
 
-        String getRecipeIDOnDate = String.format("SELECT %s FROM %s WHERE %s < ? " +
-                " UNION SELECT %s FROM %s" +
-                " RIGHT JOIN %s ON %s = %s " +
-                " WHERE ? = BETWEEN %s AND %s",
-                Columns.recipe.recipe_id, Tables.recipe, Columns.recipe.startDate,
-                Columns.oldRecipe.recipe_id, Tables.oldRecipe,
-                Tables.oldRecipe, Tables.recipe + "." + Columns.recipe.recipe_id, Tables.oldRecipe + "." + Columns.oldRecipe.recipe_id,
-                Tables.oldRecipe + "." + Columns.oldRecipe.endDate, Tables.recipe + "."+ Columns.recipe.startDate);
-
-        try {
-            PreparedStatement recipeIDOnDatePS = c.prepareStatement(getRecipeIDOnDate);
-            recipeIDOnDatePS.setDate(1, Date.valueOf(date));
-            recipeIDOnDatePS.setDate(2, Date.valueOf(date));
-
-        } catch (SQLException e) {
-            throw new DALException(e.getMessage());
-        } finally {
-            iConnPool.releaseConnection(c);
-        }
-        return null;
-
-        */
-
-        // IRecipe Object to return.
         IRecipeDTO recipeDTO = new RecipeDTO();
 
         Connection c = iConnPool.getConn();
 
-        String getRecipeIDFromRecipeNameQuery = String.format("SELECT %s FROM %s WHERE %s = ?",
-                Columns.recipe.recipe_id, Tables.recipe, Columns.recipe.name);
+        // Query for getting the recipe that was in use on a given date.
+        String recipeOnDate = String.format("SELECT %s AS %s, %s AS %s, %s AS %s, %s AS %s FROM %s " +
+                " LEFT JOIN %s" +
+                " ON %s = %s" +
+                " WHERE %s = ? AND %s <= ? AND %s >= ?",
+                Tables.recipe + "." + Columns.recipe.recipe_id, "recipe_id",
+                Tables.recipe + "." + Columns.recipe.name, "recipeName",
+                Tables.recipe + "." + Columns.recipe.startDate , "startDate",
+                Tables.oldRecipe + "." + Columns.oldRecipe.endDate, "endDate",
+                Tables.recipe, Tables.oldRecipe,
+                Tables.recipe + "." + Columns.recipe.recipe_id, Tables.oldRecipe + "." + Columns.oldRecipe.recipe_id,
+                Tables.recipe + "." + Columns.recipe.name, Tables.recipe + "." + Columns.recipe.startDate,
+                Tables.oldRecipe + "." + Columns.oldRecipe.endDate);
+
 
         try {
-            PreparedStatement recipeIdFromRecipeNamePS = c.prepareStatement(getRecipeIDFromRecipeNameQuery);
-            recipeIdFromRecipeNamePS.setString(1, recipeName);
+            PreparedStatement recipeOneDatePS = c.prepareStatement(recipeOnDate);
+            recipeOneDatePS.setString(1, recipeName);
+            recipeOneDatePS.setDate(2, Date.valueOf(date));
+            recipeOneDatePS.setDate(3, Date.valueOf(date));
 
-            ResultSet recipeIdFromRecipeNameRS = recipeIdFromRecipeNamePS.executeQuery();
-
-            while (recipeIdFromRecipeNameRS.next()) {
-                int recipeID = recipeIdFromRecipeNameRS.getInt(Columns.recipe.recipe_id.toString());
-                IRecipeDTO recipeDTOTemp = getRecipe(recipeID);
-                if (isBetween(date,recipeDTOTemp.getStartDate(), recipeDTOTemp.getEndDate())) {
-                    recipeDTO= recipeDTOTemp;
-                    break;
-                }
+            // Gets recipe_id and gets it.
+            ResultSet recipeIdOnDateRS = recipeOneDatePS.executeQuery();
+            while (recipeIdOnDateRS.next()) {
+                int recipe_id = recipeIdOnDateRS.getInt("recipe_id");
+                recipeDTO = getRecipe(recipe_id);
             }
 
         } catch (SQLException e) {
@@ -447,16 +430,12 @@ public class RecipeDAO implements IRecipeDAO {
      */
     @Override
     public int updateRecipe(IRecipeDTO updatedRecipe) throws DALException {
+
+        Connection c = iConnPool.getConn();
         return 0;
     }
 
     /*
     ---------------------- Support Methods ----------------------
      */
-
-    private boolean isBetween (LocalDate date, LocalDate startDate, LocalDate endDate) {
-
-        return !(date.isBefore(startDate) || date.isAfter(endDate));
-
-    }
 }

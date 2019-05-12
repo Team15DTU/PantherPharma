@@ -133,7 +133,7 @@ public class RecipeDTO implements IRecipeDTO {
         toStringBuilder.append("Name: " + name + ", ");
         toStringBuilder.append("StartDate: " + startDate + ", ");
         if (endDate != null) {
-            toStringBuilder.append(", EndDate: " + endDate + ", ");
+            toStringBuilder.append("EndDate: " + endDate + ", ");
         }
         toStringBuilder.append("StorageTime: " + storageTime + " days");
         if (oldRecipe_ID != -1) {
